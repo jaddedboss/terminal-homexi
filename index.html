@@ -931,13 +931,16 @@ async function processPayment() {
       return;
     }
 
-    var orderId  = authData.id;
-    var chargeId = authCharge.id;
-    var authCode2 = (authCharge.payment_method && authCharge.payment_method.auth_code) || '—';
-    addLog('AUTORIZACIÓN OK · AUTH: ' + authCode2 + ' · CAPTURANDO...', 'ok');
+    var orderId   = authData.id;
+    var authCharge = authData.charges && authData.charges.data && authData.charges.data[0];
+    var authCode2  = (authCharge && authCharge.payment_method && authCharge.payment_method.auth_code) || '—';
+    var chargeStatus = (authCharge && authCharge.status) || '';
 
-    // PASO 3: Capture — cobro efectivo
-    if (currentMode !== 'capture') {
+    addLog('AUTORIZACIÓN OK · AUTH: ' + authCode2 + ' · ESTADO: ' + chargeStatus.toUpperCase(), 'ok');
+
+    // PASO 3: Capture — solo si el cargo no fue capturado automáticamente
+    if (currentMode !== 'capture' && chargeStatus !== 'paid') {
+      addLog('CAPTURANDO CARGO...');
       var capResp = await fetch('https://api.conekta.io/orders/' + orderId + '/capture', {
         method: 'POST',
         headers: { 'Accept': 'application/vnd.conekta-v2.1.0+json', 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + PRIVATE_KEY }
@@ -951,6 +954,8 @@ async function processPayment() {
         return;
       }
       addLog('CAPTURA EXITOSA · COBRO COMPLETADO', 'ok');
+    } else if (chargeStatus === 'paid') {
+      addLog('COBRO COMPLETADO · CAPTURA AUTOMÁTICA', 'ok');
     } else {
       addLog('MODO CAPTURE ONLY · AUTORIZADO · PENDIENTE DE CAPTURA MANUAL', 'warn');
     }
