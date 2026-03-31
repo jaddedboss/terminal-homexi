@@ -3,979 +3,583 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Terminal Virtual MOTO — Homexi</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>HOMEXI // TERMINAL MOTO v3.1</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0a0e1a;
-    --surface: #111827;
-    --surface2: #1a2236;
-    --border: #1e2d45;
-    --accent: #00d4ff;
-    --accent2: #0066ff;
-    --success: #00e87a;
-    --error: #ff3b5c;
-    --warning: #ffb800;
-    --text: #e2e8f0;
-    --text-dim: #64748b;
-    --text-muted: #334155;
-    --mono: 'IBM Plex Mono', monospace;
-    --sans: 'IBM Plex Sans', sans-serif;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    min-height: 100vh;
-    background-image: 
-      radial-gradient(ellipse at 20% 0%, rgba(0,102,255,0.08) 0%, transparent 60%),
-      radial-gradient(ellipse at 80% 100%, rgba(0,212,255,0.05) 0%, transparent 60%);
-  }
-
-  /* Header */
-  .header {
-    border-bottom: 1px solid var(--border);
-    padding: 16px 32px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: rgba(10,14,26,0.9);
-    backdrop-filter: blur(10px);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .logo-mark {
-    width: 32px;
-    height: 32px;
-    background: linear-gradient(135deg, var(--accent2), var(--accent));
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--mono);
-    font-weight: 600;
-    font-size: 14px;
-    color: white;
-  }
-
-  .logo-text {
-    font-family: var(--mono);
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    color: var(--text);
-  }
-
-  .logo-sub {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--text-dim);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
-  .status-bar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--text-dim);
-  }
-
-  .status-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--success);
-    box-shadow: 0 0 8px var(--success);
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
-
-  /* Main layout */
-  .main {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 32px 24px;
-    display: grid;
-    grid-template-columns: 1fr 360px;
-    gap: 24px;
-  }
-
-  /* Card */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-  }
-
-  .card-header {
-    padding: 16px 24px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .card-title {
-    font-family: var(--mono);
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text-dim);
-  }
-
-  .card-body { padding: 24px; }
-
-  /* Mode tabs */
-  .mode-tabs {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2px;
-    background: var(--bg);
-    border-radius: 8px;
-    padding: 3px;
-    margin-bottom: 28px;
-  }
-
-  .mode-tab {
-    padding: 10px 16px;
-    border: none;
-    border-radius: 6px;
-    background: transparent;
-    color: var(--text-dim);
-    font-family: var(--mono);
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-transform: uppercase;
-  }
-
-  .mode-tab.active {
-    background: var(--surface2);
-    color: var(--accent);
-    border: 1px solid var(--border);
-  }
-
-  .mode-tab:hover:not(.active) { color: var(--text); }
-
-  /* Form groups */
-  .form-group {
-    margin-bottom: 20px;
-  }
-
-  .form-row {
-    display: grid;
-    gap: 16px;
-    margin-bottom: 20px;
-  }
-
-  .form-row-2 { grid-template-columns: 1fr 1fr; }
-  .form-row-3 { grid-template-columns: 2fr 1fr 1fr; }
-
-  label {
-    display: block;
-    font-family: var(--mono);
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--text-dim);
-    margin-bottom: 8px;
-  }
-
-  .required { color: var(--accent); }
-
-  input, select, textarea {
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px 16px;
-    color: var(--text);
-    font-family: var(--mono);
-    font-size: 13px;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    appearance: none;
-  }
-
-  input:focus, select:focus, textarea:focus {
-    border-color: var(--accent2);
-    box-shadow: 0 0 0 3px rgba(0,102,255,0.12);
-  }
-
-  input::placeholder { color: var(--text-muted); }
-
-  select option {
-    background: var(--surface);
-    color: var(--text);
-  }
-
-  /* Card number input with icon */
-  .card-input-wrap {
-    position: relative;
-  }
-
-  .card-input-wrap input {
-    padding-right: 48px;
-    letter-spacing: 0.05em;
-  }
-
-  .card-type-icon {
-    position: absolute;
-    right: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 18px;
-    pointer-events: none;
-  }
-
-  /* Amount input */
-  .amount-wrap {
-    position: relative;
-  }
-
-  .currency-prefix {
-    position: absolute;
-    left: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-family: var(--mono);
-    font-size: 13px;
-    color: var(--text-dim);
-    pointer-events: none;
-  }
-
-  .amount-wrap input {
-    padding-left: 56px;
-    font-size: 20px;
-    font-weight: 500;
-    color: var(--text);
-  }
-
-  /* Auth code field */
-  .auth-section {
-    display: none;
-    background: rgba(0,212,255,0.04);
-    border: 1px solid rgba(0,212,255,0.15);
-    border-radius: 8px;
-    padding: 16px;
-    margin-bottom: 20px;
-  }
-
-  .auth-section.visible { display: block; }
-
-  .auth-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(0,212,255,0.1);
-    border: 1px solid rgba(0,212,255,0.2);
-    border-radius: 4px;
-    padding: 4px 8px;
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--accent);
-    letter-spacing: 0.08em;
-    margin-bottom: 12px;
-  }
-
-  /* Divider */
-  .divider {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 24px 0;
-    color: var(--text-muted);
-    font-size: 11px;
-    font-family: var(--mono);
-    letter-spacing: 0.08em;
-  }
-
-  .divider::before, .divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  /* Submit button */
-  .btn-submit {
-    width: 100%;
-    padding: 16px;
-    background: linear-gradient(135deg, var(--accent2), var(--accent));
-    border: none;
-    border-radius: 10px;
-    color: white;
-    font-family: var(--mono);
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .btn-submit::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-
-  .btn-submit:hover::before { opacity: 1; }
-  .btn-submit:active { transform: scale(0.99); }
-
-  .btn-submit:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .btn-submit .spinner {
-    display: none;
-    width: 16px;
-    height: 16px;
-    border: 2px solid rgba(255,255,255,0.3);
-    border-top-color: white;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin: 0 auto;
-  }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-
-  .btn-submit.loading .btn-text { display: none; }
-  .btn-submit.loading .spinner { display: block; }
-
-  /* Right panel */
-  .panel-right { display: flex; flex-direction: column; gap: 16px; }
-
-  /* Transaction summary */
-  .summary-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 13px;
-  }
-
-  .summary-row:last-child { border-bottom: none; }
-
-  .summary-label { color: var(--text-dim); font-family: var(--mono); font-size: 11px; }
-  .summary-value { font-family: var(--mono); font-weight: 500; }
-
-  .summary-amount {
-    font-size: 28px;
-    font-weight: 600;
-    color: var(--accent);
-    font-family: var(--mono);
-    text-align: center;
-    padding: 16px 0;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 8px;
-  }
-
-  /* Response panel */
-  .response-panel {
-    display: none;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-  }
-
-  .response-panel.visible { display: block; }
-
-  .response-header {
-    padding: 12px 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-family: var(--mono);
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
-  .response-header.success { background: rgba(0,232,122,0.08); color: var(--success); border-bottom: 1px solid rgba(0,232,122,0.15); }
-  .response-header.error { background: rgba(255,59,92,0.08); color: var(--error); border-bottom: 1px solid rgba(255,59,92,0.15); }
-  .response-header.pending { background: rgba(255,184,0,0.08); color: var(--warning); border-bottom: 1px solid rgba(255,184,0,0.15); }
-
-  .response-body {
-    padding: 16px 20px;
-    font-family: var(--mono);
-    font-size: 11px;
-    line-height: 1.8;
-    color: var(--text-dim);
-  }
-
-  .response-field { display: flex; justify-content: space-between; margin-bottom: 6px; }
-  .response-key { color: var(--text-muted); }
-  .response-val { color: var(--text); font-weight: 500; }
-
-  /* Recent transactions */
-  .tx-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 12px;
-  }
-
-  .tx-item:last-child { border-bottom: none; }
-
-  .tx-info { display: flex; flex-direction: column; gap: 2px; }
-  .tx-id { font-family: var(--mono); font-size: 10px; color: var(--text-dim); }
-  .tx-card { font-family: var(--mono); font-size: 11px; color: var(--text); }
-
-  .tx-right { text-align: right; }
-  .tx-amount { font-family: var(--mono); font-weight: 600; font-size: 13px; }
-  .tx-status {
-    font-family: var(--mono);
-    font-size: 9px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 2px 6px;
-    border-radius: 3px;
-    margin-top: 3px;
-    display: inline-block;
-  }
-
-  .tx-status.paid { background: rgba(0,232,122,0.1); color: var(--success); }
-  .tx-status.declined { background: rgba(255,59,92,0.1); color: var(--error); }
-  .tx-status.pending { background: rgba(255,184,0,0.1); color: var(--warning); }
-
-  /* Mode indicator */
-  .mode-indicator {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-family: var(--mono);
-    font-size: 10px;
-    padding: 4px 10px;
-    border-radius: 4px;
-    letter-spacing: 0.08em;
-  }
-
-  .mode-indicator.normal { background: rgba(0,102,255,0.1); color: var(--accent2); border: 1px solid rgba(0,102,255,0.2); }
-  .mode-indicator.capture { background: rgba(0,212,255,0.1); color: var(--accent); border: 1px solid rgba(0,212,255,0.2); }
-
-  /* Security badges */
-  .security-badges {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-top: 16px;
-  }
-
-  .badge {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-family: var(--mono);
-    font-size: 9px;
-    color: var(--text-muted);
-    letter-spacing: 0.06em;
-  }
-
-  .badge svg { width: 12px; height: 12px; }
-
-  @media (max-width: 768px) {
-    .main { grid-template-columns: 1fr; }
-    .form-row-3 { grid-template-columns: 1fr 1fr; }
-    .form-row-3 > *:first-child { grid-column: span 2; }
-  }
+:root {
+  --bg:#000000;--bg1:#040a04;--bg2:#071007;--bg3:#0a180a;
+  --green:#00ff41;--green2:#00cc33;--green3:#008f20;--green4:#004d11;
+  --amber:#ffb800;--red:#ff2d2d;--cyan:#00e5ff;
+  --border:#0d2e0d;--border2:#1a4a1a;--dimmer:#0d200d;
+  --text:#b0ffb0;--text-dim:#4a8a4a;--text-muted:#1e4a1e;
+  --mono:'IBM Plex Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:100vh;font-size:12px;}
+body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);pointer-events:none;z-index:9999;}
+
+/* HEADER */
+.header{border-bottom:1px solid var(--border2);background:var(--bg1);position:sticky;top:0;z-index:100;}
+.header-top{display:flex;align-items:center;justify-content:space-between;padding:5px 16px;border-bottom:1px solid var(--border);font-size:10px;color:var(--text-dim);letter-spacing:0.08em;}
+.header-top em{color:var(--green);font-style:normal;}
+.header-main{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;}
+.logo-ascii{font-size:18px;font-weight:700;color:var(--green);letter-spacing:0.15em;text-shadow:0 0 20px rgba(0,255,65,0.4);}
+.logo-sub{font-size:9px;color:var(--text-dim);letter-spacing:0.2em;text-transform:uppercase;margin-top:1px;}
+.header-stats{display:flex;gap:20px;}
+.hstat{display:flex;flex-direction:column;align-items:flex-end;gap:1px;}
+.hstat-label{font-size:8px;color:var(--text-muted);letter-spacing:0.12em;text-transform:uppercase;}
+.hstat-val{font-size:11px;font-weight:600;}
+.green{color:var(--green)}.amber{color:var(--amber)}.red{color:var(--red)}.cyan{color:var(--cyan)}
+.status-row{display:flex;align-items:center;gap:16px;padding:4px 16px;border-top:1px solid var(--border);background:var(--dimmer);overflow-x:auto;}
+.s-item{display:flex;align-items:center;gap:5px;font-size:9px;color:var(--text-dim);letter-spacing:0.08em;white-space:nowrap;flex-shrink:0;}
+.s-dot{width:5px;height:5px;border-radius:50%;animation:blink 1.5s infinite;}
+.s-dot.g{background:var(--green);box-shadow:0 0 5px var(--green);}
+.s-dot.a{background:var(--amber);box-shadow:0 0 5px var(--amber);}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* LAYOUT */
+.main{display:grid;grid-template-columns:1fr 1fr 280px;gap:1px;background:var(--border);min-height:calc(100vh - 90px);}
+.panel{background:var(--bg1);padding:12px;}
+.panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border2);}
+.panel-title{font-size:9px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);}
+.panel-id{font-size:8px;color:var(--text-muted);letter-spacing:0.08em;}
+
+/* FORM */
+.field{margin-bottom:10px;}
+.field-label{font-size:8px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:4px;display:flex;justify-content:space-between;}
+.field-label .req{color:var(--green);}
+input,select{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:0;padding:7px 10px;color:var(--green);font-family:var(--mono);font-size:12px;font-weight:500;outline:none;transition:border-color 0.15s;appearance:none;letter-spacing:0.05em;}
+input:focus,select:focus{border-color:var(--green);background:var(--bg2);}
+input::placeholder{color:var(--text-muted);font-weight:400;}
+select option{background:#030f03;color:var(--green);}
+.field-row{display:grid;gap:8px;}.col2{grid-template-columns:1fr 1fr;}.col3{grid-template-columns:1fr 1fr 1fr;}
+.amount-wrap{position:relative;}
+.amt-prefix{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-size:11px;pointer-events:none;}
+.amount-wrap input{padding-left:50px;font-size:18px;font-weight:700;text-shadow:0 0 15px rgba(0,255,65,0.3);}
+.card-wrap{position:relative;}.card-wrap input{padding-right:44px;}
+.card-scheme{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:9px;color:var(--text-dim);pointer-events:none;letter-spacing:0.05em;}
+
+/* MODE TOGGLE */
+.mode-row{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:12px;background:var(--bg);border:1px solid var(--border2);padding:2px;}
+.mode-btn{padding:7px 10px;border:none;background:transparent;color:var(--text-dim);font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;}
+.mode-btn.on{background:var(--bg2);color:var(--green);border:1px solid var(--green3);}
+
+/* AUTH BOX */
+.auth-box{display:none;border:1px solid var(--green4);background:var(--bg2);padding:10px;margin-bottom:10px;}
+.auth-box.on{display:block;}
+.auth-tag{font-size:8px;font-weight:700;color:var(--cyan);letter-spacing:0.15em;margin-bottom:8px;}
+.auth-box input{text-align:center;letter-spacing:0.3em;font-size:20px;font-weight:700;color:var(--cyan);}
+
+/* DIVIDER */
+.divider{display:flex;align-items:center;gap:8px;margin:10px 0;font-size:8px;color:var(--text-muted);letter-spacing:0.12em;text-transform:uppercase;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border2);}
+
+/* BUTTON */
+.btn-submit{width:100%;padding:12px 16px;margin-top:12px;background:var(--bg);border:1px solid var(--green);color:var(--green);font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;box-shadow:0 0 20px rgba(0,255,65,0.06);}
+.btn-submit:hover{background:rgba(0,255,65,0.04);box-shadow:0 0 28px rgba(0,255,65,0.15);}
+.btn-submit:active{transform:scale(0.99);}
+.btn-submit:disabled{opacity:0.3;cursor:not-allowed;}
+.btn-submit .spinner{display:none;width:14px;height:14px;border:2px solid rgba(0,255,65,0.2);border-top-color:var(--green);border-radius:50%;animation:spin 0.6s linear infinite;margin:0 auto;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn-submit.loading .btn-text{display:none;}.btn-submit.loading .spinner{display:block;}
+.sec-row{display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;}
+.sec-badge{font-size:8px;color:var(--text-muted);letter-spacing:0.06em;}
+
+/* SUMMARY */
+.summary-amount-display{text-align:center;padding:14px 0;border-bottom:1px solid var(--border2);margin-bottom:10px;}
+.big-amt{font-size:28px;font-weight:700;color:var(--green);text-shadow:0 0 25px rgba(0,255,65,0.35);letter-spacing:0.05em;}
+.amt-currency{font-size:9px;color:var(--text-dim);margin-top:2px;letter-spacing:0.15em;}
+.srow{display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid var(--border);font-size:10px;}
+.srow:last-child{border-bottom:none;}
+.srow-key{color:var(--text-dim);letter-spacing:0.08em;font-size:9px;}
+.srow-val{font-weight:600;color:var(--text);text-align:right;max-width:60%;word-break:break-all;}
+
+/* RESPONSE */
+.response-box{display:none;border:1px solid var(--border2);background:var(--bg2);margin-top:8px;overflow:hidden;}
+.response-box.on{display:block;}
+.response-box-header{padding:7px 10px;display:flex;align-items:center;gap:8px;font-size:9px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;}
+.response-box-header.ok{border-bottom:1px solid rgba(0,255,65,0.2);background:rgba(0,255,65,0.05);color:var(--green);}
+.response-box-header.fail{border-bottom:1px solid rgba(255,45,45,0.2);background:rgba(255,45,45,0.05);color:var(--red);}
+.response-box-header.wait{border-bottom:1px solid rgba(255,184,0,0.2);background:rgba(255,184,0,0.05);color:var(--amber);}
+.response-box-body{padding:10px;font-size:9px;line-height:1.9;}
+.rfield{display:flex;justify-content:space-between;}
+.rkey{color:var(--text-muted);}.rval{font-weight:600;color:var(--text);}
+
+/* LOG */
+.terminal-log{background:var(--bg);border:1px solid var(--border2);padding:8px;height:100px;overflow-y:auto;margin-bottom:10px;scrollbar-width:thin;scrollbar-color:var(--green4) transparent;}
+.tlog-line{font-size:9px;line-height:1.7;color:var(--text-dim);}
+.tlog-line.ok{color:var(--green2);}.tlog-line.warn{color:var(--amber);}.tlog-line.err{color:var(--red);}
+.tlog-line .ts{color:var(--text-muted);margin-right:6px;}
+
+/* TRANSACTIONS */
+.tx-entry{padding:8px 0;border-bottom:1px solid var(--border);font-size:9px;}
+.tx-entry:last-child{border-bottom:none;}
+.tx-top{display:flex;justify-content:space-between;align-items:baseline;}
+.tx-id-str{color:var(--text-dim);}.tx-amt-str{font-size:11px;font-weight:700;}
+.tx-mid{display:flex;justify-content:space-between;margin-top:2px;}
+.tx-card-str{color:var(--text-dim);}
+.tx-badge{font-size:8px;font-weight:700;letter-spacing:0.1em;padding:1px 5px;}
+.tx-badge.ok{background:rgba(0,255,65,0.1);color:var(--green);}.tx-badge.fail{background:rgba(255,45,45,0.1);color:var(--red);}
+
+::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:var(--green4);}
+@media(max-width:900px){.main{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
 
 <header class="header">
-  <div class="logo">
-    <div class="logo-mark">HX</div>
+  <div class="header-top">
+    <span>SYS/<em>HOMEXI-VT-3.1</em> // NODE <em>MX-TOR-01</em></span>
+    <span>API: <em>api.conekta.io</em> // <em id="currentTime">--:--:--</em></span>
+  </div>
+  <div class="header-main">
     <div>
-      <div class="logo-text">HOMEXI</div>
-      <div class="logo-sub">Virtual Terminal</div>
+      <div class="logo-ascii">HOMEXI//</div>
+      <div class="logo-sub">Virtual Terminal · MOTO Mode</div>
+    </div>
+    <div class="header-stats">
+      <div class="hstat"><span class="hstat-label">Transacciones</span><span class="hstat-val cyan" id="hTxCount">0</span></div>
+      <div class="hstat"><span class="hstat-label">Aprobadas</span><span class="hstat-val green" id="hApproved">0</span></div>
+      <div class="hstat"><span class="hstat-label">Rechazadas</span><span class="hstat-val red" id="hDeclined">0</span></div>
+      <div class="hstat"><span class="hstat-label">Modo</span><span class="hstat-val amber">PRUEBAS</span></div>
     </div>
   </div>
-  <div class="status-bar">
-    <div class="status-dot" style="background:var(--warning);box-shadow:0 0 8px var(--warning)"></div>
-    <span style="color:var(--warning)">MODO PRUEBAS</span>
-    <span style="color:var(--border)">|</span>
-    <span id="currentTime"></span>
+  <div class="status-row">
+    <div class="s-item"><span class="s-dot g"></span>API CONECTADA</div>
+    <div class="s-item"><span class="s-dot a"></span>MODO PRUEBAS ACTIVO</div>
+    <div class="s-item"><span class="s-dot g"></span>CONEKTA · ONLINE</div>
+    <div class="s-item"><span class="s-dot g"></span>PCI-DSS · ACTIVO</div>
+    <div class="s-item"><span class="s-dot g"></span>SSL · TLS 1.3</div>
+    <div class="s-item"><span class="s-dot g"></span>MOTO · HABILITADO</div>
+    <div class="s-item">UP: <span id="logUptime" style="color:var(--green);margin-left:4px">00:00:00</span></div>
   </div>
 </header>
 
-<main class="main">
+<div class="main">
 
-  <!-- LEFT: Form -->
-  <div>
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">Nueva Transacción</span>
-        <span class="mode-indicator normal" id="modeIndicator">● COBRO DIRECTO</span>
+  <!-- PANEL 1: FORM -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">// Nueva Transacción</span>
+      <span class="panel-id" id="modeIndicator">COBRO DIRECTO</span>
+    </div>
+
+    <div class="mode-row">
+      <button class="mode-btn on" id="btnModeNormal" onclick="setMode('normal')">[ COBRO NORMAL ]</button>
+      <button class="mode-btn" id="btnModeCapture" onclick="setMode('capture')">[ CAPTURE ONLY ]</button>
+    </div>
+
+    <div class="auth-box" id="authSection">
+      <div class="auth-tag">// PREAUTORIZACIÓN — CAPTURE MODE</div>
+      <div class="field">
+        <div class="field-label">Código de Autorización <span class="req">*</span></div>
+        <input type="text" id="authCode" placeholder="000000" maxlength="8" oninput="updateSummary()">
       </div>
-      <div class="card-body">
+    </div>
 
-        <!-- Mode tabs -->
-        <div class="mode-tabs">
-          <button class="mode-tab active" onclick="setMode('normal')">Cobro Normal</button>
-          <button class="mode-tab" onclick="setMode('capture')">Capture Only</button>
-        </div>
+    <div class="field">
+      <div class="field-label">Monto <span class="req">*</span></div>
+      <div class="amount-wrap">
+        <span class="amt-prefix">MXN $</span>
+        <input type="number" id="amount" placeholder="0.00" step="0.01" min="1" oninput="updateSummary()">
+      </div>
+    </div>
 
-        <!-- Auth section (Capture Only) -->
-        <div class="auth-section" id="authSection">
-          <div class="auth-badge">⚡ PREAUTORIZACIÓN</div>
-          <div class="form-group" style="margin:0">
-            <label>Código de Autorización <span class="required">*</span></label>
-            <input type="text" id="authCode" placeholder="Ej: 123456" maxlength="8" style="letter-spacing:0.2em; font-size:18px; font-weight:600; text-align:center;">
-          </div>
-        </div>
+    <div class="divider">// datos de tarjeta</div>
 
-        <!-- Amount -->
-        <div class="form-group">
-          <label>Monto <span class="required">*</span></label>
-          <div class="amount-wrap">
-            <span class="currency-prefix">MXN $</span>
-            <input type="number" id="amount" placeholder="0.00" step="0.01" min="1" oninput="updateSummary()">
-          </div>
-        </div>
+    <div class="field">
+      <div class="field-label">Número de Tarjeta <span class="req">*</span></div>
+      <div class="card-wrap">
+        <input type="text" id="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19" oninput="formatCard(this);updateSummary()">
+        <span class="card-scheme" id="cardScheme">—</span>
+      </div>
+    </div>
 
-        <div class="divider">datos de tarjeta</div>
+    <div class="field-row col3">
+      <div class="field">
+        <div class="field-label">Vence <span class="req">*</span></div>
+        <input type="text" id="expiry" placeholder="MM/AA" maxlength="5" oninput="formatExpiry(this)">
+      </div>
+      <div class="field">
+        <div class="field-label">CVV <span class="req">*</span></div>
+        <input type="text" id="cvv" placeholder="•••" maxlength="4" style="letter-spacing:0.2em;text-align:center;">
+      </div>
+      <div class="field">
+        <div class="field-label">Moneda</div>
+        <input type="text" value="MXN" readonly style="color:var(--text-dim);text-align:center;">
+      </div>
+    </div>
 
-        <!-- Card number -->
-        <div class="form-group">
-          <label>Número de Tarjeta <span class="required">*</span></label>
-          <div class="card-input-wrap">
-            <input type="text" id="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19" oninput="formatCard(this); updateSummary();">
-            <span class="card-type-icon" id="cardIcon">💳</span>
-          </div>
-        </div>
+    <div class="divider">// datos del cliente</div>
 
-        <!-- Expiry + CVV -->
-        <div class="form-row form-row-2">
-          <div>
-            <label>Fecha de Vencimiento <span class="required">*</span></label>
-            <input type="text" id="expiry" placeholder="MM/AA" maxlength="5" oninput="formatExpiry(this)">
-          </div>
-          <div>
-            <label>CVV <span class="required">*</span></label>
-            <input type="text" id="cvv" placeholder="•••" maxlength="4" style="letter-spacing:0.2em;">
-          </div>
-        </div>
+    <div class="field">
+      <div class="field-label">Nombre del Titular</div>
+      <input type="text" id="customerName" placeholder="NOMBRE COMPLETO" oninput="updateSummary()" style="text-transform:uppercase;">
+    </div>
 
-        <div class="divider">datos del cliente</div>
+    <div class="field-row col2">
+      <div class="field">
+        <div class="field-label">Email</div>
+        <input type="email" id="customerEmail" placeholder="correo@dominio.com">
+      </div>
+      <div class="field">
+        <div class="field-label">Teléfono</div>
+        <input type="text" id="customerPhone" placeholder="+52 000 000 0000">
+      </div>
+    </div>
 
-        <!-- Customer info -->
-        <div class="form-group">
-          <label>Nombre del Titular</label>
-          <input type="text" id="customerName" placeholder="Nombre completo" oninput="updateSummary()">
-        </div>
+    <div class="field">
+      <div class="field-label">Referencia / Descripción</div>
+      <input type="text" id="description" placeholder="REF-000000 // DESCRIPCIÓN DEL SERVICIO">
+    </div>
 
-        <div class="form-row form-row-2">
-          <div>
-            <label>Email</label>
-            <input type="email" id="customerEmail" placeholder="correo@ejemplo.com">
-          </div>
-          <div>
-            <label>Teléfono</label>
-            <input type="text" id="customerPhone" placeholder="+52 000 000 0000">
-          </div>
-        </div>
+    <button class="btn-submit" id="submitBtn" onclick="processPayment()">
+      <span class="btn-text">&gt;_ PROCESAR TRANSACCIÓN</span>
+      <div class="spinner"></div>
+    </button>
 
-        <!-- Description -->
-        <div class="form-group">
-          <label>Descripción / Referencia</label>
-          <input type="text" id="description" placeholder="Descripción del servicio o referencia interna">
-        </div>
+    <div class="sec-row">
+      <span class="sec-badge">// SSL</span>
+      <span class="sec-badge">// PCI DSS</span>
+      <span class="sec-badge">// CONEKTA SECURE</span>
+      <span class="sec-badge">// MOTO ENABLED</span>
+    </div>
+  </div>
 
-        <!-- Submit -->
-        <button class="btn-submit" id="submitBtn" onclick="processPayment()">
-          <span class="btn-text">⚡ Procesar Pago</span>
-          <div class="spinner"></div>
-        </button>
+  <!-- PANEL 2: LOG + RESPONSE -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">// System Log</span>
+      <span class="panel-id" id="logStatus">ONLINE</span>
+    </div>
+    <div class="terminal-log" id="terminalLog"></div>
 
-        <div class="security-badges">
-          <span class="badge">🔒 SSL Cifrado</span>
-          <span class="badge">🛡️ PCI DSS</span>
-          <span class="badge">✓ Conekta Secure</span>
-        </div>
-
+    <div class="panel-header" style="margin-top:4px;">
+      <span class="panel-title">// Respuesta del Banco</span>
+      <span class="panel-id" id="responseStatus">EN ESPERA</span>
+    </div>
+    <div class="response-box on" id="responsePanel">
+      <div class="response-box-header wait" id="responseHeader">
+        <span id="responseIcon">■</span>
+        <span id="responseTitle">EN ESPERA DE TRANSACCIÓN</span>
+      </div>
+      <div class="response-box-body" id="responseBody">
+        <div class="rfield"><span class="rkey">TERMINAL</span><span class="rval">HOMEXI-VT-3.1</span></div>
+        <div class="rfield"><span class="rkey">PROCESADOR</span><span class="rval">CONEKTA</span></div>
+        <div class="rfield"><span class="rkey">MODO</span><span class="rval" style="color:var(--amber)">PRUEBAS</span></div>
+        <div class="rfield"><span class="rkey">ESTADO</span><span class="rval">LISTA</span></div>
       </div>
     </div>
   </div>
 
-  <!-- RIGHT: Summary + Response -->
-  <div class="panel-right">
-
-    <!-- Summary -->
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">Resumen</span>
-      </div>
-      <div class="card-body" style="padding:16px 20px;">
-        <div class="summary-amount" id="summaryAmount">$0.00</div>
-        <div class="summary-row">
-          <span class="summary-label">TITULAR</span>
-          <span class="summary-value" id="summaryName">—</span>
-        </div>
-        <div class="summary-row">
-          <span class="summary-label">TARJETA</span>
-          <span class="summary-value" id="summaryCard">—</span>
-        </div>
-        <div class="summary-row">
-          <span class="summary-label">MODO</span>
-          <span class="summary-value" id="summaryMode" style="color:var(--accent2)">COBRO DIRECTO</span>
-        </div>
-        <div class="summary-row" id="summaryAuthRow" style="display:none">
-          <span class="summary-label">AUTH CODE</span>
-          <span class="summary-value" id="summaryAuth" style="color:var(--accent)">—</span>
-        </div>
-      </div>
+  <!-- PANEL 3: RESUMEN + HISTORIAL -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">// Resumen</span>
+      <span class="panel-id" id="summaryModeLabel">COBRO DIRECTO</span>
     </div>
 
-    <!-- Response -->
-    <div class="response-panel" id="responsePanel">
-      <div class="response-header" id="responseHeader">
-        <span id="responseIcon">●</span>
-        <span id="responseTitle">Procesando...</span>
-      </div>
-      <div class="response-body" id="responseBody"></div>
+    <div class="summary-amount-display">
+      <div class="big-amt" id="summaryAmount">$0.00</div>
+      <div class="amt-currency">MXN · PESOS MEXICANOS</div>
     </div>
 
-    <!-- Recent transactions -->
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">Últimas Transacciones</span>
-      </div>
-      <div class="card-body" style="padding: 0 20px;">
-        <div id="txList">
-          <div style="padding:20px 0; text-align:center; color:var(--text-muted); font-family:var(--mono); font-size:11px;">
-            SIN TRANSACCIONES AÚN
-          </div>
-        </div>
-      </div>
+    <div class="srow"><span class="srow-key">TITULAR</span><span class="srow-val" id="summaryName">—</span></div>
+    <div class="srow"><span class="srow-key">TARJETA</span><span class="srow-val" id="summaryCard">—</span></div>
+    <div class="srow"><span class="srow-key">ESQUEMA</span><span class="srow-val" id="summaryScheme" style="color:var(--text-dim)">—</span></div>
+    <div class="srow"><span class="srow-key">MODO</span><span class="srow-val" id="summaryMode" style="color:var(--cyan)">COBRO DIRECTO</span></div>
+    <div class="srow" id="summaryAuthRow" style="display:none">
+      <span class="srow-key">AUTH CODE</span>
+      <span class="srow-val" id="summaryAuth" style="color:var(--cyan)">—</span>
     </div>
 
+    <div class="panel-header" style="margin-top:14px;">
+      <span class="panel-title">// Historial</span>
+      <span class="panel-id" id="txCountLabel">0 REGISTROS</span>
+    </div>
+    <div id="txList">
+      <div style="padding:12px 0;text-align:center;font-size:9px;color:var(--text-muted);letter-spacing:0.1em;">SIN TRANSACCIONES AÚN</div>
+    </div>
   </div>
-</main>
 
+</div>
+
+<!-- Conekta se carga primero, el script principal al final -->
 <script src="https://cdn.conekta.io/js/latest/conekta.js"></script>
 <script>
-  // ─── Config ───
-  const PUBLIC_KEY = 'key_N27574NfEE4cBdJAzdk0tjF';
-  const PRIVATE_KEY = 'key_q0gjpHWFRxaKxNI7UdsBjIq';
-  const API_URL = 'https://api.conekta.io/orders';
+// ── Globals (var para evitar temporal dead zone) ──
+var currentMode = 'normal';
+var transactions = [];
+var txApproved = 0;
+var txDeclined = 0;
+var startTime = Date.now();
+var conektaReady = false;
 
-  // Initialize Conekta
-  Conekta.setPublicKey(PUBLIC_KEY);
-  Conekta.setLanguage('es');
+var PUBLIC_KEY  = 'key_N27574NfEE4cBdJAzdk0tjF';
+var PRIVATE_KEY = 'key_q0gjpHWFRxaKxNI7UdsBjIq';
+var API_URL     = 'https://api.conekta.io/orders';
 
-  let currentMode = 'normal';
-  let transactions = [];
-
-  // ─── Clock ───
-  function updateClock() {
-    const now = new Date();
-    document.getElementById('currentTime').textContent = 
-      now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+// ── Init Conekta cuando el DOM esté listo ──
+window.addEventListener('load', function() {
+  if (typeof Conekta !== 'undefined') {
+    Conekta.setPublicKey(PUBLIC_KEY);
+    Conekta.setLanguage('es');
+    conektaReady = true;
+    addLog('CONEKTA SDK · LISTO', 'ok');
+  } else {
+    addLog('CONEKTA SDK · ERROR DE CARGA', 'err');
   }
-  setInterval(updateClock, 1000);
-  updateClock();
+});
 
-  // ─── Mode ───
-  function setMode(mode) {
-    currentMode = mode;
-    const tabs = document.querySelectorAll('.mode-tab');
-    tabs[0].classList.toggle('active', mode === 'normal');
-    tabs[1].classList.toggle('active', mode === 'capture');
+// ── Clock & uptime ──
+function ts() {
+  return new Date().toLocaleTimeString('es-MX', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+function updateClock() {
+  document.getElementById('currentTime').textContent = ts();
+  var up = Math.floor((Date.now() - startTime) / 1000);
+  var h = String(Math.floor(up / 3600)).padStart(2, '0');
+  var m = String(Math.floor((up % 3600) / 60)).padStart(2, '0');
+  var s = String(up % 60).padStart(2, '0');
+  document.getElementById('logUptime').textContent = h + ':' + m + ':' + s;
+}
+setInterval(updateClock, 1000);
+updateClock();
 
-    const authSection = document.getElementById('authSection');
-    authSection.classList.toggle('visible', mode === 'capture');
+// ── Log ──
+function addLog(msg, type) {
+  type = type || 'ok';
+  var log = document.getElementById('terminalLog');
+  var line = document.createElement('div');
+  line.className = 'tlog-line ' + type;
+  line.innerHTML = '<span class="ts">' + ts() + '</span>' + msg;
+  log.appendChild(line);
+  log.scrollTop = log.scrollHeight;
+}
 
-    const indicator = document.getElementById('modeIndicator');
-    const summaryMode = document.getElementById('summaryMode');
-    const authRow = document.getElementById('summaryAuthRow');
+// Init log entries
+addLog('SISTEMA INICIADO · HOMEXI-VT-3.1', 'ok');
+addLog('CONECTANDO A API CONEKTA...', 'ok');
+addLog('MODO PRUEBAS ACTIVO', 'warn');
+addLog('TERMINAL LISTA', 'ok');
 
-    if (mode === 'capture') {
-      indicator.className = 'mode-indicator capture';
-      indicator.textContent = '⚡ CAPTURE ONLY';
-      summaryMode.textContent = 'CAPTURE ONLY';
-      summaryMode.style.color = 'var(--accent)';
-      authRow.style.display = 'flex';
-    } else {
-      indicator.className = 'mode-indicator normal';
-      indicator.textContent = '● COBRO DIRECTO';
-      summaryMode.textContent = 'COBRO DIRECTO';
-      summaryMode.style.color = 'var(--accent2)';
-      authRow.style.display = 'none';
-    }
-  }
+// ── Mode ──
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('btnModeNormal').classList.toggle('on', mode === 'normal');
+  document.getElementById('btnModeCapture').classList.toggle('on', mode === 'capture');
+  document.getElementById('authSection').classList.toggle('on', mode === 'capture');
+  document.getElementById('summaryAuthRow').style.display = mode === 'capture' ? 'flex' : 'none';
+  var label = mode === 'capture' ? 'CAPTURE ONLY' : 'COBRO DIRECTO';
+  document.getElementById('modeIndicator').textContent = label;
+  document.getElementById('summaryMode').textContent = label;
+  document.getElementById('summaryModeLabel').textContent = label;
+  addLog('MODO → ' + label);
+}
 
-  // ─── Format card number ───
-  function formatCard(input) {
-    let val = input.value.replace(/\D/g, '').substring(0, 16);
-    input.value = val.replace(/(.{4})/g, '$1 ').trim();
+// ── Format card ──
+function formatCard(input) {
+  var v = input.value.replace(/\D/g, '').substring(0, 16);
+  input.value = v.replace(/(.{4})/g, '$1 ').trim();
+  var scheme = '—';
+  if (v.charAt(0) === '4') scheme = 'VISA';
+  else if (/^5[1-5]/.test(v)) scheme = 'MC';
+  else if (/^3[47]/.test(v)) scheme = 'AMEX';
+  document.getElementById('cardScheme').textContent = scheme;
+  document.getElementById('summaryScheme').textContent = scheme === '—' ? '—' : scheme;
+}
 
-    const icon = document.getElementById('cardIcon');
-    if (val.startsWith('4')) icon.textContent = '💳'; // Visa
-    else if (val.startsWith('5')) icon.textContent = '💳'; // MC
-    else if (val.startsWith('3')) icon.textContent = '💳'; // Amex
-    else icon.textContent = '💳';
-  }
+// ── Format expiry ──
+function formatExpiry(input) {
+  var v = input.value.replace(/\D/g, '');
+  if (v.length >= 2) v = v.substring(0, 2) + '/' + v.substring(2, 4);
+  input.value = v;
+}
 
-  // ─── Format expiry ───
-  function formatExpiry(input) {
-    let val = input.value.replace(/\D/g, '');
-    if (val.length >= 2) val = val.substring(0,2) + '/' + val.substring(2,4);
-    input.value = val;
-  }
+// ── Update summary ──
+function updateSummary() {
+  var amt  = document.getElementById('amount').value;
+  var name = document.getElementById('customerName').value;
+  var card = document.getElementById('cardNumber').value;
+  document.getElementById('summaryAmount').textContent =
+    amt ? '$' + parseFloat(amt).toLocaleString('es-MX', { minimumFractionDigits: 2 }) : '$0.00';
+  document.getElementById('summaryName').textContent = name ? name.toUpperCase() : '—';
+  var clean = card.replace(/\s/g, '');
+  document.getElementById('summaryCard').textContent = clean.length >= 4 ? '•••• ' + clean.slice(-4) : '—';
+  document.getElementById('summaryAuth').textContent = document.getElementById('authCode').value || '—';
+}
 
-  // ─── Update summary ───
-  function updateSummary() {
-    const amount = document.getElementById('amount').value;
-    const name = document.getElementById('customerName').value;
-    const card = document.getElementById('cardNumber').value;
+// ── Process payment ──
+async function processPayment() {
+  if (!conektaReady) return showError('CONEKTA SDK NO DISPONIBLE — RECARGA LA PÁGINA');
 
-    document.getElementById('summaryAmount').textContent = 
-      amount ? '$' + parseFloat(amount).toLocaleString('es-MX', {minimumFractionDigits:2}) : '$0.00';
-    document.getElementById('summaryName').textContent = name || '—';
-    
-    const clean = card.replace(/\s/g,'');
-    document.getElementById('summaryCard').textContent = 
-      clean.length >= 4 ? '•••• ' + clean.slice(-4) : '—';
+  var amount       = document.getElementById('amount').value;
+  var cardNumber   = document.getElementById('cardNumber').value.replace(/\s/g, '');
+  var expiry       = document.getElementById('expiry').value;
+  var cvv          = document.getElementById('cvv').value;
+  var customerName = document.getElementById('customerName').value || 'Cliente';
+  var customerEmail= document.getElementById('customerEmail').value || 'cliente@homexi.com';
+  var description  = document.getElementById('description').value || 'Pago Homexi';
+  var authCode     = document.getElementById('authCode').value;
+  var phone        = document.getElementById('customerPhone').value || '5500000000';
 
-    const authCode = document.getElementById('authCode').value;
-    document.getElementById('summaryAuth').textContent = authCode || '—';
-  }
+  if (!amount || parseFloat(amount) < 1)     return showError('MONTO INVÁLIDO');
+  if (cardNumber.length < 15)                return showError('TARJETA INVÁLIDA');
+  if (!expiry || expiry.length < 5)          return showError('FECHA INVÁLIDA');
+  if (!cvv || cvv.length < 3)                return showError('CVV INVÁLIDO');
+  if (currentMode === 'capture' && (!authCode || authCode.length < 4))
+                                             return showError('AUTH CODE REQUERIDO');
 
-  // ─── Process payment with tokenization ───
-  async function processPayment() {
-    const amount = document.getElementById('amount').value;
-    const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g,'');
-    const expiry = document.getElementById('expiry').value;
-    const cvv = document.getElementById('cvv').value;
-    const customerName = document.getElementById('customerName').value || 'Cliente';
-    const customerEmail = document.getElementById('customerEmail').value || 'cliente@homexi.com';
-    const description = document.getElementById('description').value || 'Pago Homexi';
-    const authCode = document.getElementById('authCode').value;
-    const phone = document.getElementById('customerPhone').value || '5500000000';
+  var parts = expiry.split('/');
+  var expMonth = parts[0];
+  var expYear  = parts[1];
 
-    // Validations
-    if (!amount || parseFloat(amount) < 1) return showError('Ingresa un monto válido.');
-    if (cardNumber.length < 15) return showError('Número de tarjeta inválido.');
-    if (!expiry || expiry.length < 5) return showError('Fecha de vencimiento inválida.');
-    if (!cvv || cvv.length < 3) return showError('CVV inválido.');
-    if (currentMode === 'capture' && (!authCode || authCode.length < 4)) {
-      return showError('Ingresa el código de autorización.');
-    }
+  var btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.classList.add('loading');
+  showPending();
+  addLog('INICIANDO TX · $' + parseFloat(amount).toLocaleString('es-MX', { minimumFractionDigits: 2 }) + ' MXN');
 
-    const [expMonth, expYear] = expiry.split('/');
-
-    const btn = document.getElementById('submitBtn');
-    btn.disabled = true;
-    btn.classList.add('loading');
-    showPending();
-
-    try {
-      // Step 1: Tokenize card with Conekta.js
-      const tokenData = {
-        card: {
-          number: cardNumber,
-          name: customerName,
-          exp_year: '20' + expYear,
-          exp_month: expMonth,
-          cvc: cvv
-        }
-      };
-
-      const tokenResult = await new Promise((resolve, reject) => {
-        Conekta.Token.create(tokenData, 
-          (token) => resolve(token),
-          (error) => reject(error)
-        );
-      });
-
-      const tokenId = tokenResult.id;
-
-      // Step 2: Create order with token
-      const payload = {
-        currency: 'MXN',
-        customer_info: {
-          name: customerName,
-          email: customerEmail,
-          phone: phone
-        },
-        line_items: [{
-          name: description,
-          unit_price: Math.round(parseFloat(amount) * 100),
-          quantity: 1
-        }],
-        charges: [{
-          payment_method: {
-            type: 'card',
-            token_id: tokenId
-          },
-          amount: Math.round(parseFloat(amount) * 100)
-        }]
-      };
-
-      // If capture only mode, add auth code
-      if (currentMode === 'capture') {
-        payload.charges[0].payment_method.capture = false;
-        payload.pre_authorization = authCode;
-      }
-
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/vnd.conekta-v2.1.0+json',
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + PRIVATE_KEY
-        },
-        body: JSON.stringify(payload)
-      });
-
-      const data = await response.json();
-
-      if (response.ok && (data.payment_status === 'paid' || data.charges?.data?.[0]?.status === 'paid')) {
-        const charge = data.charges?.data?.[0];
-        showSuccess({
-          id: data.id,
-          amount: parseFloat(amount),
-          status: charge?.status || 'paid',
-          authCode: charge?.payment_method?.auth_code || authCode || '—',
-          last4: cardNumber.slice(-4),
-          name: customerName
-        });
-        addTransaction({
-          id: (data.id || '').substring(0,12) + '...',
-          last4: cardNumber.slice(-4),
-          amount: parseFloat(amount),
-          status: 'paid'
-        });
-        resetForm();
-      } else {
-        const errMsg = data.details?.[0]?.message || data.message || 'Transacción rechazada';
-        showError(errMsg);
-        addTransaction({
-          id: 'DECLINED',
-          last4: cardNumber.slice(-4),
-          amount: parseFloat(amount),
-          status: 'declined'
-        });
-      }
-    } catch (err) {
-      const msg = err.message_to_purchaser || err.message || 'Error al procesar';
-      showError(msg);
-    } finally {
-      btn.disabled = false;
-      btn.classList.remove('loading');
-    }
-  }
-
-  // ─── Response states ───
-  function showPending() {
-    const panel = document.getElementById('responsePanel');
-    panel.classList.add('visible');
-    document.getElementById('responseHeader').className = 'response-header pending';
-    document.getElementById('responseIcon').textContent = '◌';
-    document.getElementById('responseTitle').textContent = 'PROCESANDO...';
-    document.getElementById('responseBody').innerHTML = '<div style="color:var(--warning)">Enviando al banco adquirente...</div>';
-  }
-
-  function showSuccess(data) {
-    const panel = document.getElementById('responsePanel');
-    panel.classList.add('visible');
-    document.getElementById('responseHeader').className = 'response-header success';
-    document.getElementById('responseIcon').textContent = '✓';
-    document.getElementById('responseTitle').textContent = 'APROBADO';
-    document.getElementById('responseBody').innerHTML = `
-      <div class="response-field"><span class="response-key">ORDER ID</span><span class="response-val">${data.id?.substring(0,20) || '—'}...</span></div>
-      <div class="response-field"><span class="response-key">MONTO</span><span class="response-val" style="color:var(--success)">$${data.amount.toLocaleString('es-MX',{minimumFractionDigits:2})} MXN</span></div>
-      <div class="response-field"><span class="response-key">TARJETA</span><span class="response-val">•••• ${data.last4}</span></div>
-      <div class="response-field"><span class="response-key">AUTH CODE</span><span class="response-val" style="color:var(--accent)">${data.authCode}</span></div>
-      <div class="response-field"><span class="response-key">TITULAR</span><span class="response-val">${data.name}</span></div>
-      <div class="response-field"><span class="response-key">ESTADO</span><span class="response-val" style="color:var(--success)">PAGADO ✓</span></div>
-    `;
-  }
-
-  function showError(msg) {
-    const panel = document.getElementById('responsePanel');
-    panel.classList.add('visible');
-    document.getElementById('responseHeader').className = 'response-header error';
-    document.getElementById('responseIcon').textContent = '✕';
-    document.getElementById('responseTitle').textContent = 'RECHAZADO';
-    document.getElementById('responseBody').innerHTML = `<div style="color:var(--error)">${msg}</div>`;
-  }
-
-  // ─── Add transaction to history ───
-  function addTransaction(tx) {
-    transactions.unshift(tx);
-    if (transactions.length > 5) transactions.pop();
-    renderTransactions();
-  }
-
-  function renderTransactions() {
-    const list = document.getElementById('txList');
-    if (transactions.length === 0) {
-      list.innerHTML = '<div style="padding:20px 0; text-align:center; color:var(--text-muted); font-family:var(--mono); font-size:11px;">SIN TRANSACCIONES AÚN</div>';
-      return;
-    }
-    list.innerHTML = transactions.map(tx => `
-      <div class="tx-item">
-        <div class="tx-info">
-          <span class="tx-id">${tx.id}</span>
-          <span class="tx-card">•••• ${tx.last4}</span>
-        </div>
-        <div class="tx-right">
-          <div class="tx-amount">$${tx.amount.toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
-          <span class="tx-status ${tx.status}">${tx.status === 'paid' ? 'PAGADO' : 'DECLINADO'}</span>
-        </div>
-      </div>
-    `).join('');
-  }
-
-  // ─── Reset form ───
-  function resetForm() {
-    ['amount','cardNumber','expiry','cvv','customerName','customerEmail','customerPhone','description','authCode'].forEach(id => {
-      document.getElementById(id).value = '';
+  try {
+    addLog('TOKENIZANDO TARJETA...');
+    var tokenResult = await new Promise(function(resolve, reject) {
+      Conekta.Token.create(
+        { card: { number: cardNumber, name: customerName, exp_year: '20' + expYear, exp_month: expMonth, cvc: cvv } },
+        function(token) { resolve(token); },
+        function(error) { reject(error); }
+      );
     });
-    document.getElementById('cardIcon').textContent = '💳';
-    updateSummary();
-  }
 
-  // Auth code live update
-  document.getElementById('authCode').addEventListener('input', updateSummary);
+    addLog('TOKEN OK · ' + tokenResult.id.substring(0, 16) + '...');
+
+    var payload = {
+      currency: 'MXN',
+      customer_info: { name: customerName, email: customerEmail, phone: phone },
+      line_items: [{ name: description, unit_price: Math.round(parseFloat(amount) * 100), quantity: 1 }],
+      charges: [{ payment_method: { type: 'card', token_id: tokenResult.id }, amount: Math.round(parseFloat(amount) * 100) }],
+      metadata: { terminal: 'HOMEXI-VIRTUAL-MOTO-3.1', mode: currentMode }
+    };
+
+    if (currentMode === 'capture') {
+      payload.charges[0].payment_method.capture = false;
+      payload.pre_authorization = authCode;
+    }
+
+    addLog('ENVIANDO A BANCO ADQUIRENTE...');
+    var response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Accept':        'application/vnd.conekta-v2.1.0+json',
+        'Content-Type':  'application/json',
+        'Authorization': 'Bearer ' + PRIVATE_KEY
+      },
+      body: JSON.stringify(payload)
+    });
+
+    var data = await response.json();
+    var isPaid = response.ok && (data.payment_status === 'paid' || (data.charges && data.charges.data && data.charges.data[0] && data.charges.data[0].status === 'paid'));
+
+    if (isPaid) {
+      var charge = data.charges && data.charges.data && data.charges.data[0];
+      var authResCode = (charge && charge.payment_method && charge.payment_method.auth_code) || authCode || '—';
+      showSuccess({ id: data.id, amount: parseFloat(amount), authCode: authResCode, last4: cardNumber.slice(-4), name: customerName });
+      addLog('APROBADA · AUTH: ' + authResCode, 'ok');
+      addTransaction({ id: (data.id || '').substring(0, 14) + '...', last4: cardNumber.slice(-4), amount: parseFloat(amount), status: 'paid' });
+      txApproved++;
+      resetForm();
+    } else {
+      var errMsg = (data.details && data.details[0] && data.details[0].message) || data.message || 'TRANSACCIÓN RECHAZADA';
+      showError(errMsg);
+      addLog('RECHAZADA · ' + errMsg, 'err');
+      addTransaction({ id: 'DECLINED', last4: cardNumber.slice(-4), amount: parseFloat(amount), status: 'declined' });
+      txDeclined++;
+    }
+
+    document.getElementById('hApproved').textContent = txApproved;
+    document.getElementById('hDeclined').textContent = txDeclined;
+    document.getElementById('hTxCount').textContent  = txApproved + txDeclined;
+
+  } catch (err) {
+    var msg = err.message_to_purchaser || err.message || 'ERROR DE CONEXIÓN';
+    showError(msg);
+    addLog('ERROR · ' + msg, 'err');
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove('loading');
+  }
+}
+
+// ── Response states ──
+function showPending() {
+  document.getElementById('responsePanel').classList.add('on');
+  document.getElementById('responseHeader').className = 'response-box-header wait';
+  document.getElementById('responseIcon').textContent  = '◌';
+  document.getElementById('responseTitle').textContent = 'PROCESANDO TRANSACCIÓN...';
+  document.getElementById('responseStatus').textContent = 'PROCESANDO';
+  document.getElementById('responseBody').innerHTML =
+    '<div class="rfield"><span class="rkey">MODO</span><span class="rval">' + (currentMode === 'capture' ? 'CAPTURE ONLY' : 'COBRO DIRECTO') + '</span></div>' +
+    '<div class="rfield"><span class="rkey">ESTADO</span><span class="rval" style="color:var(--amber)">ENVIANDO AL BANCO...</span></div>';
+}
+
+function showSuccess(data) {
+  document.getElementById('responsePanel').classList.add('on');
+  document.getElementById('responseHeader').className = 'response-box-header ok';
+  document.getElementById('responseIcon').textContent  = '✓';
+  document.getElementById('responseTitle').textContent = 'TRANSACCIÓN APROBADA';
+  document.getElementById('responseStatus').textContent = 'APROBADA';
+  document.getElementById('responseBody').innerHTML =
+    '<div class="rfield"><span class="rkey">ORDER ID</span><span class="rval">' + (data.id || '—').substring(0, 18) + '...</span></div>' +
+    '<div class="rfield"><span class="rkey">MONTO</span><span class="rval" style="color:var(--green)">$' + data.amount.toLocaleString('es-MX', { minimumFractionDigits: 2 }) + ' MXN</span></div>' +
+    '<div class="rfield"><span class="rkey">TARJETA</span><span class="rval">•••• ' + data.last4 + '</span></div>' +
+    '<div class="rfield"><span class="rkey">AUTH CODE</span><span class="rval" style="color:var(--cyan)">' + data.authCode + '</span></div>' +
+    '<div class="rfield"><span class="rkey">TITULAR</span><span class="rval">' + data.name.toUpperCase() + '</span></div>' +
+    '<div class="rfield"><span class="rkey">ESTADO</span><span class="rval" style="color:var(--green)">PAGADO ✓</span></div>';
+}
+
+function showError(msg) {
+  document.getElementById('responsePanel').classList.add('on');
+  document.getElementById('responseHeader').className = 'response-box-header fail';
+  document.getElementById('responseIcon').textContent  = '✕';
+  document.getElementById('responseTitle').textContent = 'TRANSACCIÓN RECHAZADA';
+  document.getElementById('responseStatus').textContent = 'RECHAZADA';
+  document.getElementById('responseBody').innerHTML = '<div style="color:var(--red);line-height:1.6;">' + msg + '</div>';
+}
+
+// ── Transactions ──
+function addTransaction(tx) {
+  transactions.unshift(tx);
+  if (transactions.length > 8) transactions.pop();
+  renderTransactions();
+}
+
+function renderTransactions() {
+  var list = document.getElementById('txList');
+  document.getElementById('txCountLabel').textContent = transactions.length + ' REGISTRO' + (transactions.length !== 1 ? 'S' : '');
+  if (!transactions.length) {
+    list.innerHTML = '<div style="padding:12px 0;text-align:center;font-size:9px;color:var(--text-muted);letter-spacing:0.1em;">SIN TRANSACCIONES AÚN</div>';
+    return;
+  }
+  list.innerHTML = transactions.map(function(tx) {
+    var color = tx.status === 'paid' ? 'var(--green)' : 'var(--red)';
+    var badge = tx.status === 'paid' ? 'ok' : 'fail';
+    var label = tx.status === 'paid' ? 'PAGADO' : 'DECLINADO';
+    return '<div class="tx-entry">' +
+      '<div class="tx-top"><span class="tx-id-str">' + tx.id + '</span>' +
+      '<span class="tx-amt-str" style="color:' + color + '">$' + tx.amount.toLocaleString('es-MX', { minimumFractionDigits: 2 }) + '</span></div>' +
+      '<div class="tx-mid"><span class="tx-card-str">•••• ' + tx.last4 + '</span>' +
+      '<span class="tx-badge ' + badge + '">' + label + '</span></div></div>';
+  }).join('');
+}
+
+// ── Reset ──
+function resetForm() {
+  ['amount','cardNumber','expiry','cvv','customerName','customerEmail','customerPhone','description','authCode']
+    .forEach(function(id) { document.getElementById(id).value = ''; });
+  document.getElementById('cardScheme').textContent = '—';
+  updateSummary();
+}
+
+document.getElementById('authCode').addEventListener('input', updateSummary);
 </script>
 </body>
 </html>
