@@ -566,74 +566,20 @@ function hideBin() {
   document.getElementById('summaryType').textContent = '—';
 }
 
-// ── Local BIN knowledge base (fallback) ──
-var LOCAL_BIN = {
-  // VISA México
-  '421316': { bank:'BBVA MÉXICO',        country:'MEXICO', alpha2:'MX', type:'debit',  prepaid:false, scheme:'VISA' },
-  '426684': { bank:'BANAMEX',            country:'MEXICO', alpha2:'MX', type:'credit', prepaid:false, scheme:'VISA' },
-  '431538': { bank:'SANTANDER MX',       country:'MEXICO', alpha2:'MX', type:'debit',  prepaid:false, scheme:'VISA' },
-  '455504': { bank:'BANORTE',            country:'MEXICO', alpha2:'MX', type:'debit',  prepaid:false, scheme:'VISA' },
-  '455805': { bank:'BBVA MÉXICO',        country:'MEXICO', alpha2:'MX', type:'credit', prepaid:false, scheme:'VISA' },
-  '438858': { bank:'HSBC MÉXICO',        country:'MEXICO', alpha2:'MX', type:'credit', prepaid:false, scheme:'VISA' },
-  '414720': { bank:'INBURSA',            country:'MEXICO', alpha2:'MX', type:'credit', prepaid:false, scheme:'VISA' },
-  '400226': { bank:'SCOTIABANK MX',      country:'MEXICO', alpha2:'MX', type:'credit', prepaid:false, scheme:'VISA' },
-  // Mastercard México
-  '512366': { bank:'BBVA MÉXICO',        country:'MEXICO', alpha2:'MX', type:'debit',  prepaid:false, scheme:'MASTERCARD' },
-  '515792': { bank:'BANAMEX',            country:'MEXICO', alpha2:'MX', type:'credit', prepaid:false, scheme:'MASTERCARD' },
-  '520299': { bank:'SANTANDER MX',       country:'MEXICO', alpha2:'MX', type:'credit', prepaid:false, scheme:'MASTERCARD' },
-  '557615': { bank:'BANORTE',            country:'MEXICO', alpha2:'MX', type:'credit', prepaid:false, scheme:'MASTERCARD' },
-  '531088': { bank:'HSBC MÉXICO',        country:'MEXICO', alpha2:'MX', type:'credit', prepaid:false, scheme:'MASTERCARD' },
-  // VISA Europa
-  '453978': { bank:'DEUTSCHE BANK',      country:'GERMANY', alpha2:'DE', type:'credit', prepaid:false, scheme:'VISA' },
-  '476416': { bank:'COMMERZBANK',        country:'GERMANY', alpha2:'DE', type:'credit', prepaid:false, scheme:'VISA' },
-  '423768': { bank:'BARCLAYS',           country:'UNITED KINGDOM', alpha2:'GB', type:'credit', prepaid:false, scheme:'VISA' },
-  '454313': { bank:'LLOYDS BANK',        country:'UNITED KINGDOM', alpha2:'GB', type:'debit',  prepaid:false, scheme:'VISA' },
-  '461046': { bank:'BNP PARIBAS',        country:'FRANCE', alpha2:'FR', type:'credit', prepaid:false, scheme:'VISA' },
-  '431940': { bank:'SANTANDER ES',       country:'SPAIN',  alpha2:'ES', type:'credit', prepaid:false, scheme:'VISA' },
-  // MC Europa
-  '534563': { bank:'DEUTSCHE BANK',      country:'GERMANY', alpha2:'DE', type:'credit', prepaid:false, scheme:'MASTERCARD' },
-  '545350': { bank:'HSBC UK',            country:'UNITED KINGDOM', alpha2:'GB', type:'credit', prepaid:false, scheme:'MASTERCARD' },
-  '522024': { bank:'ING BANK',           country:'NETHERLANDS', alpha2:'NL', type:'debit',  prepaid:false, scheme:'MASTERCARD' },
-  // VISA USA
-  '400115': { bank:'CHASE',              country:'UNITED STATES', alpha2:'US', type:'credit', prepaid:false, scheme:'VISA' },
-  '414709': { bank:'BANK OF AMERICA',    country:'UNITED STATES', alpha2:'US', type:'credit', prepaid:false, scheme:'VISA' },
-  '455670': { bank:'WELLS FARGO',        country:'UNITED STATES', alpha2:'US', type:'credit', prepaid:false, scheme:'VISA' },
-  // MC USA
-  '510805': { bank:'CHASE',              country:'UNITED STATES', alpha2:'US', type:'credit', prepaid:false, scheme:'MASTERCARD' },
-  '540541': { bank:'CITIBANK',           country:'UNITED STATES', alpha2:'US', type:'credit', prepaid:false, scheme:'MASTERCARD' },
-  // Medio Oriente (Arabia Saudita frecuente en tus ops)
-  '455815': { bank:'AL RAJHI BANK',      country:'SAUDI ARABIA',  alpha2:'SA', type:'credit', prepaid:false, scheme:'VISA' },
-  '430330': { bank:'NATIONAL COMM BANK', country:'SAUDI ARABIA',  alpha2:'SA', type:'credit', prepaid:false, scheme:'VISA' },
-  '526788': { bank:'RIYAD BANK',         country:'SAUDI ARABIA',  alpha2:'SA', type:'credit', prepaid:false, scheme:'MASTERCARD' },
-};
+function inferFromPrefix(bin) {
+  var scheme = '—';
+  if (bin.charAt(0) === '4') scheme = 'VISA';
+  else if (/^5[1-5]/.test(bin)) scheme = 'MASTERCARD';
+  else if (/^2[2-7]/.test(bin)) scheme = 'MASTERCARD';
+  else if (/^3[47]/.test(bin)) scheme = 'AMEX';
+  else if (/^6/.test(bin)) scheme = 'DISCOVER';
+  return { bank: null, country: null, alpha2: null, type: null, prepaid: false, scheme: scheme };
+}
 
 var COUNTRY_EMOJIS = {
   MX:'🇲🇽', US:'🇺🇸', GB:'🇬🇧', DE:'🇩🇪', FR:'🇫🇷', ES:'🇪🇸',
   NL:'🇳🇱', SA:'🇸🇦', IT:'🇮🇹', CA:'🇨🇦', AU:'🇦🇺', JP:'🇯🇵', BR:'🇧🇷',
 };
-
-function localBinLookup(bin) {
-  // Exact 6-digit match first
-  if (LOCAL_BIN[bin]) return LOCAL_BIN[bin];
-  // Try 5-digit prefix
-  var prefix5 = bin.substring(0,5);
-  for (var k in LOCAL_BIN) {
-    if (k.substring(0,5) === prefix5) return LOCAL_BIN[k];
-  }
-  return null;
-}
-
-function inferFromPrefix(bin) {
-  // Infer what we know just from the number prefix
-  var v = bin;
-  var scheme = '—';
-  if (v.charAt(0) === '4') scheme = 'VISA';
-  else if (/^5[1-5]/.test(v)) scheme = 'MASTERCARD';
-  else if (/^2[2-7]/.test(v)) scheme = 'MASTERCARD';
-  else if (/^3[47]/.test(v)) scheme = 'AMEX';
-  else if (/^6/.test(v)) scheme = 'DISCOVER';
-  return { bank: null, country: null, alpha2: null, type: null, prepaid: false, scheme: scheme };
-}
 
 function renderBinData(bin, d, source) {
   var isIntl   = d.alpha2 && d.alpha2 !== 'MX';
@@ -645,7 +591,6 @@ function renderBinData(bin, d, source) {
   var category = d.prepaid  ? 'PREPAGO' : (d.type ? (d.type === 'debit' ? 'DÉBITO' : 'CRÉDITO') : '—');
   var origin   = d.alpha2   ? (isIntl ? 'INTERNACIONAL' : 'NACIONAL') : '—';
 
-  // Build synthetic binData for calcRisk
   binData = { country: { alpha2: d.alpha2, name: d.country }, prepaid: d.prepaid };
 
   document.getElementById('binBank').textContent     = bank;
@@ -675,33 +620,78 @@ async function lookupBin(bin) {
   document.getElementById('binBox').classList.remove('on');
   binData = null;
 
-  // 1. Try local DB first (instant)
-  var local = localBinLookup(bin);
-  if (local) {
-    renderBinData(bin, local, 'LOCAL DB');
-    document.getElementById('binLoadingLabel').style.display = 'none';
-    calcRisk();
-    // Still try API in background to enrich data
-    tryApiEnrich(bin);
-    return;
+  // ── API CASCADE: prueba 3 fuentes en orden ──
+  var mapped = null;
+
+  // API 1: binlist.net (más completa, rate limit 10/min)
+  if (!mapped) {
+    try {
+      var r1 = await fetch('https://lookup.binlist.net/' + bin, { headers: { 'Accept-Version': '3' } });
+      if (r1.ok) {
+        var d1 = await r1.json();
+        if (d1 && (d1.scheme || d1.country)) {
+          mapped = {
+            bank:    (d1.bank && d1.bank.name) ? d1.bank.name : null,
+            country: (d1.country && d1.country.name) ? d1.country.name : null,
+            alpha2:  (d1.country && d1.country.alpha2) ? d1.country.alpha2 : null,
+            type:    d1.type || null,
+            prepaid: d1.prepaid || false,
+            scheme:  d1.scheme ? d1.scheme.toUpperCase() : null,
+            source:  'binlist.net'
+          };
+        }
+      }
+    } catch(e) {}
   }
 
-  // 2. Try binlist.net API
-  try {
-    var res = await fetch('https://lookup.binlist.net/' + bin, { headers: { 'Accept-Version': '3' } });
-    if (!res.ok) throw new Error('no data');
-    var d = await res.json();
-    var mapped = {
-      bank:    (d.bank && d.bank.name) ? d.bank.name : null,
-      country: (d.country && d.country.name) ? d.country.name : null,
-      alpha2:  (d.country && d.country.alpha2) ? d.country.alpha2 : null,
-      type:    d.type || null,
-      prepaid: d.prepaid || false,
-      scheme:  d.scheme ? d.scheme.toUpperCase() : null,
-    };
-    renderBinData(bin, mapped, 'API');
-  } catch(e) {
-    // 3. Fallback: infer from prefix only
+  // API 2: bintable.com (10,000 req/mes gratis, sin key necesaria para básico)
+  if (!mapped) {
+    try {
+      var r2 = await fetch('https://api.bintable.com/v1/' + bin + '?api_key=');
+      if (r2.ok) {
+        var d2 = await r2.json();
+        if (d2 && d2.data && d2.result === 200) {
+          var dd = d2.data;
+          mapped = {
+            bank:    (dd.bank && dd.bank.name) ? dd.bank.name : null,
+            country: (dd.country && dd.country.name) ? dd.country.name : null,
+            alpha2:  (dd.country && dd.country.a2) ? dd.country.a2 : null,
+            type:    dd.type || null,
+            prepaid: dd.prepaid || false,
+            scheme:  dd.scheme ? dd.scheme.toUpperCase() : null,
+            source:  'bintable.com'
+          };
+        }
+      }
+    } catch(e) {}
+  }
+
+  // API 3: handyapi.com (sin autenticación, base de datos independiente)
+  if (!mapped) {
+    try {
+      var r3 = await fetch('https://data.handyapi.com/bin/' + bin);
+      if (r3.ok) {
+        var d3 = await r3.json();
+        if (d3 && d3.Status === 'SUCCESS') {
+          mapped = {
+            bank:    d3.Issuer || null,
+            country: d3.Country ? d3.Country.Name : null,
+            alpha2:  d3.Country ? d3.Country.A2 : null,
+            type:    d3.Type ? d3.Type.toLowerCase() : null,
+            prepaid: false,
+            scheme:  d3.Scheme ? d3.Scheme.toUpperCase() : null,
+            source:  'handyapi.com'
+          };
+        }
+      }
+    } catch(e) {}
+  }
+
+  // Resultado
+  if (mapped) {
+    renderBinData(bin, mapped, mapped.source);
+  } else {
+    // Fallback final: solo esquema por prefijo
     var inferred = inferFromPrefix(bin);
     binData = { country: null, prepaid: false };
     document.getElementById('binBank').textContent     = '—';
@@ -711,32 +701,11 @@ async function lookupBin(bin) {
     document.getElementById('binBrand').textContent    = inferred.scheme;
     document.getElementById('binOrigin').textContent   = '—';
     document.getElementById('binBox').classList.add('on');
-    addLog('BIN ' + bin + ' · ESQUEMA: ' + inferred.scheme + ' · BANCO SIN DATOS', 'warn');
+    addLog('BIN ' + bin + ' · ' + inferred.scheme + ' · 3 APIs SIN DATOS', 'warn');
   }
 
   document.getElementById('binLoadingLabel').style.display = 'none';
   calcRisk();
-}
-
-async function tryApiEnrich(bin) {
-  // Silent background enrichment when local DB hit
-  try {
-    var res = await fetch('https://lookup.binlist.net/' + bin, { headers: { 'Accept-Version': '3' } });
-    if (!res.ok) return;
-    var d = await res.json();
-    if (d.bank && d.bank.name) {
-      var mapped = {
-        bank:    d.bank.name,
-        country: (d.country && d.country.name) ? d.country.name : null,
-        alpha2:  (d.country && d.country.alpha2) ? d.country.alpha2 : null,
-        type:    d.type || null,
-        prepaid: d.prepaid || false,
-        scheme:  d.scheme ? d.scheme.toUpperCase() : null,
-      };
-      renderBinData(bin, mapped, 'API+LOCAL');
-      calcRisk();
-    }
-  } catch(e) { /* silent, local data already shown */ }
 }
 
 
