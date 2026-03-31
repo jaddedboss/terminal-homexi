@@ -689,10 +689,16 @@
   </div>
 </main>
 
+<script src="https://cdn.conekta.io/js/latest/conekta.js"></script>
 <script>
   // ─── Config ───
-  const API_KEY = 'key_N27574NfEE4cBdJAzdk0tjF';
+  const PUBLIC_KEY = 'key_N27574NfEE4cBdJAzdk0tjF';
+  const PRIVATE_KEY = 'key_q0gjpHWFRxaKxNI7UdsBjIq';
   const API_URL = 'https://api.conekta.io/orders';
+
+  // Initialize Conekta
+  Conekta.setPublicKey(PUBLIC_KEY);
+  Conekta.setLanguage('es');
 
   let currentMode = 'normal';
   let transactions = [];
@@ -772,7 +778,7 @@
     document.getElementById('summaryAuth').textContent = authCode || '—';
   }
 
-  // ─── Process payment ───
+  // ─── Process payment with tokenization ───
   async function processPayment() {
     const amount = document.getElementById('amount').value;
     const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g,'');
@@ -782,6 +788,7 @@
     const customerEmail = document.getElementById('customerEmail').value || 'cliente@homexi.com';
     const description = document.getElementById('description').value || 'Pago Homexi';
     const authCode = document.getElementById('authCode').value;
+    const phone = document.getElementById('customerPhone').value || '5500000000';
 
     // Validations
     if (!amount || parseFloat(amount) < 1) return showError('Ingresa un monto válido.');
@@ -800,13 +807,33 @@
     showPending();
 
     try {
-      // Build payload
+      // Step 1: Tokenize card with Conekta.js
+      const tokenData = {
+        card: {
+          number: cardNumber,
+          name: customerName,
+          exp_year: '20' + expYear,
+          exp_month: expMonth,
+          cvc: cvv
+        }
+      };
+
+      const tokenResult = await new Promise((resolve, reject) => {
+        Conekta.Token.create(tokenData, 
+          (token) => resolve(token),
+          (error) => reject(error)
+        );
+      });
+
+      const tokenId = tokenResult.id;
+
+      // Step 2: Create order with token
       const payload = {
         currency: 'MXN',
         customer_info: {
           name: customerName,
           email: customerEmail,
-          phone: document.getElementById('customerPhone').value || '5500000000'
+          phone: phone
         },
         line_items: [{
           name: description,
@@ -816,21 +843,16 @@
         charges: [{
           payment_method: {
             type: 'card',
-            token_id: null,
-            card_number: cardNumber,
-            exp_month: expMonth,
-            exp_year: '20' + expYear,
-            cvv2: cvv,
-            name: customerName
+            token_id: tokenId
           },
           amount: Math.round(parseFloat(amount) * 100)
         }]
       };
 
-      // If capture only, add authorization code
+      // If capture only mode, add auth code
       if (currentMode === 'capture') {
         payload.charges[0].payment_method.capture = false;
-        payload.charges[0].authorization = authCode;
+        payload.pre_authorization = authCode;
       }
 
       const response = await fetch(API_URL, {
@@ -838,7 +860,7 @@
         headers: {
           'Accept': 'application/vnd.conekta-v2.1.0+json',
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + API_KEY
+          'Authorization': 'Bearer ' + PRIVATE_KEY
         },
         body: JSON.stringify(payload)
       });
@@ -873,7 +895,8 @@
         });
       }
     } catch (err) {
-      showError('Error de conexión: ' + err.message);
+      const msg = err.message_to_purchaser || err.message || 'Error al procesar';
+      showError(msg);
     } finally {
       btn.disabled = false;
       btn.classList.remove('loading');
