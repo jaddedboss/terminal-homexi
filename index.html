@@ -208,7 +208,6 @@ select option{background:#030f03;color:var(--green);}
       <div class="hstat"><span class="hstat-label">Transacciones</span><span class="hstat-val cyan" id="hTxCount">0</span></div>
       <div class="hstat"><span class="hstat-label">Aprobadas</span><span class="hstat-val green" id="hApproved">0</span></div>
       <div class="hstat"><span class="hstat-label">Rechazadas</span><span class="hstat-val red" id="hDeclined">0</span></div>
-      <div class="hstat"><span class="hstat-label">Pre-Auth</span><span class="hstat-val cyan" id="hPreauth">0</span></div>
       <div class="hstat"><span class="hstat-label">Modo</span><span class="hstat-val amber">PRUEBAS</span></div>
     </div>
   </div>
@@ -335,13 +334,6 @@ select option{background:#030f03;color:var(--green);}
       <input type="text" id="description" placeholder="REF-000000 // DESCRIPCIÓN DEL SERVICIO">
     </div>
 
-    <!-- PRE-AUTH BUTTON -->
-    <button class="btn-preauth" id="preauthBtn" onclick="runPreauth()">
-      <span class="btn-text">◈ VERIFICAR TARJETA ($3 PRE-AUTH)</span>
-      <div class="spinner"></div>
-    </button>
-    <div class="preauth-result" id="preauthResult"></div>
-
     <button class="btn-submit" id="submitBtn" onclick="processPayment()">
       <span class="btn-text">&gt;_ PROCESAR TRANSACCIÓN</span>
       <div class="spinner"></div>
@@ -380,7 +372,6 @@ select option{background:#030f03;color:var(--green);}
         <div class="risk-factor"><span>Sin teléfono</span><span class="risk-factor-val ok" id="rfPhone">—</span></div>
         <div class="risk-factor"><span>Sin nombre titular</span><span class="risk-factor-val ok" id="rfName">—</span></div>
         <div class="risk-factor"><span>Horario nocturno</span><span class="risk-factor-val ok" id="rfTime">—</span></div>
-        <div class="risk-factor"><span>Pre-auth verificada</span><span class="risk-factor-val ok" id="rfPreauth">—</span></div>
       </div>
     </div>
 
@@ -434,10 +425,6 @@ select option{background:#030f03;color:var(--green);}
       <span class="srow-key">RIESGO</span>
       <span class="srow-val" id="summaryRisk" style="color:var(--green)">—</span>
     </div>
-    <div class="srow">
-      <span class="srow-key">PRE-AUTH</span>
-      <span class="srow-val" id="summaryPreauth" style="color:var(--text-dim)">NO VERIFICADA</span>
-    </div>
 
     <div class="panel-header" style="margin-top:14px;">
       <span class="panel-title">// Historial</span>
@@ -460,12 +447,10 @@ var currentMode    = 'normal';
 var transactions   = [];
 var txApproved     = 0;
 var txDeclined     = 0;
-var preauthCount   = 0;
 var startTime      = Date.now();
 var conektaReady   = false;
-var binData        = null;   // resultado del BIN lookup
-var preauthPassed  = false;  // si la pre-auth de $1 pasó
-var binLookupTimer = null;   // debounce timer
+var binData        = null;
+var binLookupTimer = null;
 
 window.addEventListener('load', function() {
   if (typeof Conekta !== 'undefined') {
@@ -744,9 +729,7 @@ function calcRisk() {
   var hour = new Date().getHours();
   if (hour >= 23 || hour < 6) { score += 10; factors.time = 'warn'; } else { factors.time = 'ok'; }
 
-  // Pre-auth pasada = reduce riesgo
-  if (preauthPassed) { score = Math.max(0, score - 20); factors.preauth = 'ok'; } else { factors.preauth = 'warn'; }
-
+  // Pre-auth ya no aplica como factor separado
   score = Math.min(100, Math.max(0, score));
 
   // Update UI
@@ -771,14 +754,13 @@ function calcRisk() {
 
   // Factor labels
   var map = {
-    rfIntl:    factors.intl    === 'warn' ? { t:'SÍ +25%', c:'bad'  } : { t:'NO',    c:'ok' },
-    rfPrepaid: factors.prepaid === 'bad'  ? { t:'SÍ +20%', c:'bad'  } : { t:'NO',    c:'ok' },
-    rfAmount:  factors.amount  === 'warn' ? { t:'SÍ +'+( amt>50000?20:10)+'%', c:'warn' } : { t:'NO',    c:'ok' },
-    rfEmail:   factors.email   === 'warn' ? { t:'SÍ +10%', c:'warn' } : { t:'NO',    c:'ok' },
-    rfPhone:   factors.phone   === 'warn' ? { t:'SÍ +10%', c:'warn' } : { t:'NO',    c:'ok' },
-    rfName:    factors.name    === 'warn' ? { t:'SÍ +10%', c:'warn' } : { t:'NO',    c:'ok' },
-    rfTime:    factors.time    === 'warn' ? { t:'SÍ +10%', c:'warn' } : { t:'NO',    c:'ok' },
-    rfPreauth: preauthPassed               ? { t:'SÍ -20%', c:'ok'  } : { t:'NO',    c:'warn' },
+    rfIntl:    factors.intl    === 'warn' ? { t:'SÍ +25%', c:'bad'  } : { t:'NO', c:'ok' },
+    rfPrepaid: factors.prepaid === 'bad'  ? { t:'SÍ +20%', c:'bad'  } : { t:'NO', c:'ok' },
+    rfAmount:  factors.amount  === 'warn' ? { t:'SÍ +'+(amt>50000?20:10)+'%', c:'warn' } : { t:'NO', c:'ok' },
+    rfEmail:   factors.email   === 'warn' ? { t:'SÍ +10%', c:'warn' } : { t:'NO', c:'ok' },
+    rfPhone:   factors.phone   === 'warn' ? { t:'SÍ +10%', c:'warn' } : { t:'NO', c:'ok' },
+    rfName:    factors.name    === 'warn' ? { t:'SÍ +10%', c:'warn' } : { t:'NO', c:'ok' },
+    rfTime:    factors.time    === 'warn' ? { t:'SÍ +10%', c:'warn' } : { t:'NO', c:'ok' },
   };
   Object.keys(map).forEach(function(id) {
     var el = document.getElementById(id);
@@ -817,89 +799,7 @@ function tokenizeCard(cardNumber, customerName, expMonth, expYear, cvv) {
   });
 }
 
-// ── PRE-AUTH ($1 verification) ──
-async function runPreauth() {
-  if (!conektaReady) return showPreauthResult(false, 'CONEKTA NO DISPONIBLE');
-
-  var cardNumber   = document.getElementById('cardNumber').value.replace(/\s/g,'');
-  var expiry       = document.getElementById('expiry').value;
-  var cvv          = document.getElementById('cvv').value;
-  var customerName = document.getElementById('customerName').value || 'Cliente';
-
-  if (cardNumber.length < 15) return showPreauthResult(false, 'INGRESA UN NÚMERO DE TARJETA VÁLIDO');
-  if (!expiry || expiry.length < 5) return showPreauthResult(false, 'INGRESA LA FECHA DE VENCIMIENTO');
-  if (!cvv || cvv.length < 3) return showPreauthResult(false, 'INGRESA EL CVV');
-
-  var parts = expiry.split('/');
-  var btn = document.getElementById('preauthBtn');
-  btn.disabled = true;
-  btn.classList.add('loading');
-  document.getElementById('preauthResult').classList.remove('on');
-  addLog('PRE-AUTH $3 · VERIFICANDO TARJETA...');
-
-  try {
-    var tokenResult = await tokenizeCard(cardNumber, customerName, parts[0], parts[1], cvv);
-    addLog('TOKEN PRE-AUTH · OK');
-
-    var payload = {
-      currency: 'MXN',
-      customer_info: { name: customerName, email: 'preauth@homexi.com', phone: '5500000000' },
-      line_items: [{ name: 'Verificacion de Tarjeta', unit_price: 300, quantity: 1 }],
-      charges: [{
-        payment_method: { type: 'card', token_id: tokenResult.id, capture: false },
-        amount: 300
-      }],
-      metadata: { terminal: 'HOMEXI-VT-3.2', type: 'preauth_verification' }
-    };
-
-    var response = await fetch(API_URL, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/vnd.conekta-v2.1.0+json',
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + PRIVATE_KEY
-      },
-      body: JSON.stringify(payload)
-    });
-
-    var data = await response.json();
-    var ok = response.ok && data.charges && data.charges.data && data.charges.data[0];
-
-    if (ok) {
-      preauthPassed = true;
-      preauthCount++;
-      document.getElementById('hPreauth').textContent = preauthCount;
-      document.getElementById('summaryPreauth').textContent = '✓ VERIFICADA';
-      document.getElementById('summaryPreauth').style.color = 'var(--green)';
-      showPreauthResult(true, '✓ TARJETA ACTIVA · PAGO REAL PUEDE PROCEDER');
-      addLog('PRE-AUTH · TARJETA VERIFICADA · ACTIVA', 'ok');
-    } else {
-      preauthPassed = false;
-      document.getElementById('summaryPreauth').textContent = '✕ FALLÓ';
-      document.getElementById('summaryPreauth').style.color = 'var(--red)';
-      var errMsg = (data.details && data.details[0] && data.details[0].message) || data.message || 'TARJETA DECLINADA';
-      showPreauthResult(false, '✕ TARJETA NO VÁLIDA · ' + errMsg.toUpperCase());
-      addLog('PRE-AUTH · TARJETA DECLINADA · ' + errMsg, 'err');
-    }
-    calcRisk();
-
-  } catch(err) {
-    var msg = err.message_to_purchaser || err.message || 'ERROR';
-    showPreauthResult(false, '✕ ERROR · ' + msg.toUpperCase());
-    addLog('PRE-AUTH · ERROR · ' + msg, 'err');
-  } finally {
-    btn.disabled = false;
-    btn.classList.remove('loading');
-  }
-}
-
-function showPreauthResult(success, msg) {
-  var el = document.getElementById('preauthResult');
-  el.className = 'preauth-result on ' + (success ? 'ok' : 'fail');
-  el.textContent = msg;
-}
-
-// ── PROCESS PAYMENT ──
+// ── PROCESS PAYMENT (authorize → capture en un solo flujo transparente) ──
 async function processPayment() {
   if (!conektaReady) return showError('CONEKTA SDK NO DISPONIBLE — RECARGA LA PÁGINA');
 
@@ -920,78 +820,87 @@ async function processPayment() {
   if (currentMode === 'capture' && (!authCode || authCode.length < 4))
                                            return showError('AUTH CODE REQUERIDO');
 
-  var parts = expiry.split('/');
-  var btn = document.getElementById('submitBtn');
+  var parts  = expiry.split('/');
+  var amtInt = Math.round(parseFloat(amount) * 100);
+  var btn    = document.getElementById('submitBtn');
   btn.disabled = true;
   btn.classList.add('loading');
   showPending();
-  addLog('INICIANDO TX · $'+parseFloat(amount).toLocaleString('es-MX',{minimumFractionDigits:2})+' MXN');
+
+  var riskScore  = document.getElementById('riskScore').textContent;
+  var binCountry = (binData && binData.country && binData.country.name) || 'DESCONOCIDO';
+  var binBank    = (binData && binData.bank && binData.bank.name) || 'DESCONOCIDO';
+
+  addLog('INICIANDO TX · $' + parseFloat(amount).toLocaleString('es-MX', { minimumFractionDigits: 2 }) + ' MXN');
 
   try {
+    // PASO 1: Tokenizar
     addLog('TOKENIZANDO TARJETA...');
     var tokenResult = await tokenizeCard(cardNumber, customerName, parts[0], parts[1], cvv);
-    addLog('TOKEN OK · ' + tokenResult.id.substring(0,16) + '...');
+    addLog('TOKEN OK · ' + tokenResult.id.substring(0, 16) + '...');
 
-    var riskScore = document.getElementById('riskScore').textContent;
-    var binCountry = (binData && binData.country && binData.country.name) || 'DESCONOCIDO';
-    var binBank    = (binData && binData.bank && binData.bank.name) || 'DESCONOCIDO';
-
-    var payload = {
+    // PASO 2: Autorizar (capture: false) — verifica que la tarjeta esté activa sin cobrar aún
+    addLog('AUTORIZANDO TARJETA...');
+    var authPayload = {
       currency: 'MXN',
       customer_info: { name: customerName, email: customerEmail, phone: phone },
-      line_items: [{ name: description, unit_price: Math.round(parseFloat(amount)*100), quantity: 1 }],
-      charges: [{ payment_method: { type: 'card', token_id: tokenResult.id }, amount: Math.round(parseFloat(amount)*100) }],
-      metadata: {
-        terminal:       'HOMEXI-VIRTUAL-MOTO-3.2',
-        mode:           currentMode,
-        risk_score:     riskScore,
-        card_country:   binCountry,
-        card_bank:      binBank,
-        preauth_passed: preauthPassed ? 'SI' : 'NO'
-      }
+      line_items: [{ name: description, unit_price: amtInt, quantity: 1 }],
+      charges: [{ payment_method: { type: 'card', token_id: tokenResult.id, capture: false }, amount: amtInt }],
+      metadata: { terminal: 'HOMEXI-VT-3.2', mode: 'authorize', risk_score: riskScore, card_country: binCountry, card_bank: binBank }
     };
 
-    if (currentMode === 'capture') {
-      payload.charges[0].payment_method.capture = false;
-      payload.pre_authorization = authCode;
-    }
-
-    addLog('ENVIANDO A BANCO ADQUIRENTE...');
-    var response = await fetch(API_URL, {
+    var authResp = await fetch(API_URL, {
       method: 'POST',
-      headers: {
-        'Accept': 'application/vnd.conekta-v2.1.0+json',
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + PRIVATE_KEY
-      },
-      body: JSON.stringify(payload)
+      headers: { 'Accept': 'application/vnd.conekta-v2.1.0+json', 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + PRIVATE_KEY },
+      body: JSON.stringify(authPayload)
     });
+    var authData = await authResp.json();
+    var authCharge = authData.charges && authData.charges.data && authData.charges.data[0];
 
-    var data = await response.json();
-    var charge = data.charges && data.charges.data && data.charges.data[0];
-    var isPaid = response.ok && charge && (charge.status === 'paid' || data.payment_status === 'paid');
-
-    if (isPaid) {
-      var authResCode = (charge.payment_method && charge.payment_method.auth_code) || authCode || '—';
-      showSuccess({ id: data.id, amount: parseFloat(amount), authCode: authResCode, last4: cardNumber.slice(-4), name: customerName, risk: riskScore, country: binCountry });
-      addLog('APROBADA · AUTH: ' + authResCode + ' · RIESGO: ' + riskScore, 'ok');
-      addTransaction({ id: (data.id||'').substring(0,14)+'...', last4: cardNumber.slice(-4), amount: parseFloat(amount), status: 'paid', country: binCountry, bank: binBank });
-      txApproved++;
-      preauthPassed = false;
-      document.getElementById('summaryPreauth').textContent = 'NO VERIFICADA';
-      document.getElementById('summaryPreauth').style.color = 'var(--text-dim)';
-      resetForm();
-    } else {
-      var errMsg = (data.details && data.details[0] && data.details[0].message) || data.message || 'TRANSACCIÓN RECHAZADA';
+    if (!authResp.ok || !authCharge) {
+      // Tarjeta declinada en autorización — no se cobró nada
+      var errMsg = (authData.details && authData.details[0] && authData.details[0].message) || authData.message || 'TARJETA DECLINADA';
       showError(errMsg);
-      addLog('RECHAZADA · ' + errMsg, 'err');
+      addLog('AUTORIZACIÓN DENEGADA · ' + errMsg + ' · SIN CARGO', 'err');
       addTransaction({ id: 'DECLINED', last4: cardNumber.slice(-4), amount: parseFloat(amount), status: 'declined', country: binCountry, bank: binBank });
       txDeclined++;
+      document.getElementById('hDeclined').textContent = txDeclined;
+      document.getElementById('hTxCount').textContent  = txApproved + txDeclined;
+      return;
     }
 
+    var orderId  = authData.id;
+    var chargeId = authCharge.id;
+    var authCode2 = (authCharge.payment_method && authCharge.payment_method.auth_code) || '—';
+    addLog('AUTORIZACIÓN OK · AUTH: ' + authCode2 + ' · CAPTURANDO...', 'ok');
+
+    // PASO 3: Capture — cobro efectivo
+    if (currentMode !== 'capture') {
+      var capResp = await fetch('https://api.conekta.io/orders/' + orderId + '/capture', {
+        method: 'POST',
+        headers: { 'Accept': 'application/vnd.conekta-v2.1.0+json', 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + PRIVATE_KEY }
+      });
+      var capData = await capResp.json();
+
+      if (!capResp.ok) {
+        var capErr = (capData.details && capData.details[0] && capData.details[0].message) || capData.message || 'ERROR EN CAPTURA';
+        showError('AUTORIZADA PERO NO CAPTURADA · ' + capErr);
+        addLog('CAPTURE FALLIDO · ' + capErr, 'err');
+        return;
+      }
+      addLog('CAPTURA EXITOSA · COBRO COMPLETADO', 'ok');
+    } else {
+      addLog('MODO CAPTURE ONLY · AUTORIZADO · PENDIENTE DE CAPTURA MANUAL', 'warn');
+    }
+
+    // Éxito
+    showSuccess({ id: orderId, amount: parseFloat(amount), authCode: authCode2, last4: cardNumber.slice(-4), name: customerName, risk: riskScore, country: binCountry });
+    addTransaction({ id: orderId.substring(0, 14) + '...', last4: cardNumber.slice(-4), amount: parseFloat(amount), status: 'paid', country: binCountry, bank: binBank });
+    txApproved++;
     document.getElementById('hApproved').textContent = txApproved;
     document.getElementById('hDeclined').textContent = txDeclined;
     document.getElementById('hTxCount').textContent  = txApproved + txDeclined;
+    resetForm();
 
   } catch(err) {
     var msg = err.message_to_purchaser || err.message || 'ERROR DE CONEXIÓN';
@@ -1071,7 +980,6 @@ function resetForm() {
   ['amount','cardNumber','expiry','cvv','customerName','customerEmail','customerPhone','description','authCode']
     .forEach(function(id) { document.getElementById(id).value=''; });
   document.getElementById('cardScheme').textContent = '—';
-  document.getElementById('preauthResult').classList.remove('on');
   hideBin();
   binData = null;
   calcRisk();
