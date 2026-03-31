@@ -18,6 +18,22 @@
 body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:100vh;font-size:12px;}
 body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);pointer-events:none;z-index:9999;}
 
+/* LOGIN SCREEN */
+.login-screen{position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);z-index:99998;display:flex;align-items:center;justify-content:center;flex-direction:column;}
+.login-screen.hidden{display:none;}
+.login-box{border:1px solid var(--border2);background:var(--bg1);padding:32px;width:360px;}
+.login-logo{font-size:24px;font-weight:700;color:var(--green);letter-spacing:0.15em;text-shadow:0 0 20px rgba(0,255,65,0.4);margin-bottom:4px;}
+.login-sub{font-size:9px;color:var(--text-dim);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:28px;}
+.login-label{font-size:8px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;}
+.login-input{width:100%;background:var(--bg);border:1px solid var(--border2);padding:12px 14px;color:var(--green);font-family:var(--mono);font-size:14px;font-weight:600;outline:none;letter-spacing:0.15em;text-align:center;box-sizing:border-box;}
+.login-input:focus{border-color:var(--green);}
+.login-btn{width:100%;margin-top:12px;padding:12px;background:var(--bg);border:1px solid var(--green);color:var(--green);font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
+.login-btn:hover{background:rgba(0,255,65,0.05);box-shadow:0 0 20px rgba(0,255,65,0.15);}
+.login-error{display:none;margin-top:10px;padding:8px;border:1px solid rgba(255,45,45,0.3);background:rgba(255,45,45,0.05);font-size:9px;color:var(--red);letter-spacing:0.1em;text-align:center;}
+.login-error.on{display:block;}
+.login-attempts{font-size:8px;color:var(--text-muted);text-align:center;margin-top:8px;letter-spacing:0.08em;}
+.login-footer{margin-top:20px;font-size:8px;color:var(--text-muted);letter-spacing:0.1em;text-align:center;}
+
 .header{border-bottom:1px solid var(--border2);background:var(--bg1);position:sticky;top:0;z-index:100;}
 .header-top{display:flex;align-items:center;justify-content:space-between;padding:5px 16px;border-bottom:1px solid var(--border);font-size:10px;color:var(--text-dim);letter-spacing:0.08em;}
 .header-top em{color:var(--green);font-style:normal;}
@@ -162,6 +178,22 @@ select option{background:#030f03;color:var(--green);}
 </head>
 <body>
 
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">HOMEXI//</div>
+    <div class="login-sub">Terminal Virtual · Acceso Restringido</div>
+    <div class="login-label">Contraseña de Acceso</div>
+    <input class="login-input" type="password" id="loginPassword"
+      placeholder="••••••••"
+      onkeydown="if(event.key==='Enter') checkLogin()">
+    <button class="login-btn" onclick="checkLogin()">&gt;_ ACCEDER</button>
+    <div class="login-error" id="loginError">✕ CONTRASEÑA INCORRECTA — ACCESO DENEGADO</div>
+    <div class="login-attempts" id="loginAttempts"></div>
+  </div>
+  <div class="login-footer">HOMEXI-VT-3.2 // SISTEMA PROTEGIDO</div>
+</div>
+
 <header class="header">
   <div class="header-top">
     <span>SYS/<em>HOMEXI-VT-3.2</em> // NODE <em>MX-TOR-01</em></span>
@@ -305,7 +337,7 @@ select option{background:#030f03;color:var(--green);}
 
     <!-- PRE-AUTH BUTTON -->
     <button class="btn-preauth" id="preauthBtn" onclick="runPreauth()">
-      <span class="btn-text">◈ VERIFICAR TARJETA ($1 PRE-AUTH)</span>
+      <span class="btn-text">◈ VERIFICAR TARJETA ($3 PRE-AUTH)</span>
       <div class="spinner"></div>
     </button>
     <div class="preauth-result" id="preauthResult"></div>
@@ -534,58 +566,179 @@ function hideBin() {
   document.getElementById('summaryType').textContent = '—';
 }
 
+// ── Local BIN knowledge base (fallback) ──
+var LOCAL_BIN = {
+  // VISA México
+  '421316': { bank:'BBVA MÉXICO',        country:'MEXICO', alpha2:'MX', type:'debit',  prepaid:false, scheme:'VISA' },
+  '426684': { bank:'BANAMEX',            country:'MEXICO', alpha2:'MX', type:'credit', prepaid:false, scheme:'VISA' },
+  '431538': { bank:'SANTANDER MX',       country:'MEXICO', alpha2:'MX', type:'debit',  prepaid:false, scheme:'VISA' },
+  '455504': { bank:'BANORTE',            country:'MEXICO', alpha2:'MX', type:'debit',  prepaid:false, scheme:'VISA' },
+  '455805': { bank:'BBVA MÉXICO',        country:'MEXICO', alpha2:'MX', type:'credit', prepaid:false, scheme:'VISA' },
+  '438858': { bank:'HSBC MÉXICO',        country:'MEXICO', alpha2:'MX', type:'credit', prepaid:false, scheme:'VISA' },
+  '414720': { bank:'INBURSA',            country:'MEXICO', alpha2:'MX', type:'credit', prepaid:false, scheme:'VISA' },
+  '400226': { bank:'SCOTIABANK MX',      country:'MEXICO', alpha2:'MX', type:'credit', prepaid:false, scheme:'VISA' },
+  // Mastercard México
+  '512366': { bank:'BBVA MÉXICO',        country:'MEXICO', alpha2:'MX', type:'debit',  prepaid:false, scheme:'MASTERCARD' },
+  '515792': { bank:'BANAMEX',            country:'MEXICO', alpha2:'MX', type:'credit', prepaid:false, scheme:'MASTERCARD' },
+  '520299': { bank:'SANTANDER MX',       country:'MEXICO', alpha2:'MX', type:'credit', prepaid:false, scheme:'MASTERCARD' },
+  '557615': { bank:'BANORTE',            country:'MEXICO', alpha2:'MX', type:'credit', prepaid:false, scheme:'MASTERCARD' },
+  '531088': { bank:'HSBC MÉXICO',        country:'MEXICO', alpha2:'MX', type:'credit', prepaid:false, scheme:'MASTERCARD' },
+  // VISA Europa
+  '453978': { bank:'DEUTSCHE BANK',      country:'GERMANY', alpha2:'DE', type:'credit', prepaid:false, scheme:'VISA' },
+  '476416': { bank:'COMMERZBANK',        country:'GERMANY', alpha2:'DE', type:'credit', prepaid:false, scheme:'VISA' },
+  '423768': { bank:'BARCLAYS',           country:'UNITED KINGDOM', alpha2:'GB', type:'credit', prepaid:false, scheme:'VISA' },
+  '454313': { bank:'LLOYDS BANK',        country:'UNITED KINGDOM', alpha2:'GB', type:'debit',  prepaid:false, scheme:'VISA' },
+  '461046': { bank:'BNP PARIBAS',        country:'FRANCE', alpha2:'FR', type:'credit', prepaid:false, scheme:'VISA' },
+  '431940': { bank:'SANTANDER ES',       country:'SPAIN',  alpha2:'ES', type:'credit', prepaid:false, scheme:'VISA' },
+  // MC Europa
+  '534563': { bank:'DEUTSCHE BANK',      country:'GERMANY', alpha2:'DE', type:'credit', prepaid:false, scheme:'MASTERCARD' },
+  '545350': { bank:'HSBC UK',            country:'UNITED KINGDOM', alpha2:'GB', type:'credit', prepaid:false, scheme:'MASTERCARD' },
+  '522024': { bank:'ING BANK',           country:'NETHERLANDS', alpha2:'NL', type:'debit',  prepaid:false, scheme:'MASTERCARD' },
+  // VISA USA
+  '400115': { bank:'CHASE',              country:'UNITED STATES', alpha2:'US', type:'credit', prepaid:false, scheme:'VISA' },
+  '414709': { bank:'BANK OF AMERICA',    country:'UNITED STATES', alpha2:'US', type:'credit', prepaid:false, scheme:'VISA' },
+  '455670': { bank:'WELLS FARGO',        country:'UNITED STATES', alpha2:'US', type:'credit', prepaid:false, scheme:'VISA' },
+  // MC USA
+  '510805': { bank:'CHASE',              country:'UNITED STATES', alpha2:'US', type:'credit', prepaid:false, scheme:'MASTERCARD' },
+  '540541': { bank:'CITIBANK',           country:'UNITED STATES', alpha2:'US', type:'credit', prepaid:false, scheme:'MASTERCARD' },
+  // Medio Oriente (Arabia Saudita frecuente en tus ops)
+  '455815': { bank:'AL RAJHI BANK',      country:'SAUDI ARABIA',  alpha2:'SA', type:'credit', prepaid:false, scheme:'VISA' },
+  '430330': { bank:'NATIONAL COMM BANK', country:'SAUDI ARABIA',  alpha2:'SA', type:'credit', prepaid:false, scheme:'VISA' },
+  '526788': { bank:'RIYAD BANK',         country:'SAUDI ARABIA',  alpha2:'SA', type:'credit', prepaid:false, scheme:'MASTERCARD' },
+};
+
+var COUNTRY_EMOJIS = {
+  MX:'🇲🇽', US:'🇺🇸', GB:'🇬🇧', DE:'🇩🇪', FR:'🇫🇷', ES:'🇪🇸',
+  NL:'🇳🇱', SA:'🇸🇦', IT:'🇮🇹', CA:'🇨🇦', AU:'🇦🇺', JP:'🇯🇵', BR:'🇧🇷',
+};
+
+function localBinLookup(bin) {
+  // Exact 6-digit match first
+  if (LOCAL_BIN[bin]) return LOCAL_BIN[bin];
+  // Try 5-digit prefix
+  var prefix5 = bin.substring(0,5);
+  for (var k in LOCAL_BIN) {
+    if (k.substring(0,5) === prefix5) return LOCAL_BIN[k];
+  }
+  return null;
+}
+
+function inferFromPrefix(bin) {
+  // Infer what we know just from the number prefix
+  var v = bin;
+  var scheme = '—';
+  if (v.charAt(0) === '4') scheme = 'VISA';
+  else if (/^5[1-5]/.test(v)) scheme = 'MASTERCARD';
+  else if (/^2[2-7]/.test(v)) scheme = 'MASTERCARD';
+  else if (/^3[47]/.test(v)) scheme = 'AMEX';
+  else if (/^6/.test(v)) scheme = 'DISCOVER';
+  return { bank: null, country: null, alpha2: null, type: null, prepaid: false, scheme: scheme };
+}
+
+function renderBinData(bin, d, source) {
+  var isIntl   = d.alpha2 && d.alpha2 !== 'MX';
+  var emoji    = (d.alpha2 && COUNTRY_EMOJIS[d.alpha2]) ? COUNTRY_EMOJIS[d.alpha2] + ' ' : '';
+  var bank     = d.bank     || '—';
+  var country  = d.country  ? d.country.toUpperCase() : '—';
+  var type     = d.type     ? d.type.toUpperCase() : '—';
+  var brand    = d.scheme   || '—';
+  var category = d.prepaid  ? 'PREPAGO' : (d.type ? (d.type === 'debit' ? 'DÉBITO' : 'CRÉDITO') : '—');
+  var origin   = d.alpha2   ? (isIntl ? 'INTERNACIONAL' : 'NACIONAL') : '—';
+
+  // Build synthetic binData for calcRisk
+  binData = { country: { alpha2: d.alpha2, name: d.country }, prepaid: d.prepaid };
+
+  document.getElementById('binBank').textContent     = bank;
+  document.getElementById('binCountry').textContent  = emoji + country;
+  document.getElementById('binType').textContent     = type;
+  document.getElementById('binCategory').textContent = category;
+  document.getElementById('binBrand').textContent    = brand;
+  document.getElementById('binOrigin').textContent   = origin;
+
+  document.getElementById('binCountry').className  = 'bin-stat-val' + (isIntl ? ' intl' : '');
+  document.getElementById('binOrigin').className   = 'bin-stat-val' + (isIntl ? ' intl' : '');
+  document.getElementById('binCategory').className = 'bin-stat-val' + (d.prepaid ? ' prepaid' : '');
+
+  document.getElementById('summaryBank').textContent    = bank;
+  document.getElementById('summaryCountry').textContent = emoji + country;
+  document.getElementById('summaryType').textContent    = type + (d.prepaid ? ' · PREPAGO' : '');
+
+  document.getElementById('binBox').classList.add('on');
+
+  var logMsg = 'BIN ' + bin + ' [' + source + '] → ' + brand + (d.bank ? ' · ' + d.bank : '') + (d.country ? ' · ' + d.country.toUpperCase() : '') + (isIntl ? ' · INTL' : '');
+  addLog(logMsg, isIntl ? 'warn' : 'ok');
+  if (d.prepaid) addLog('ADVERTENCIA: TARJETA PREPAGO DETECTADA', 'warn');
+}
+
 async function lookupBin(bin) {
   document.getElementById('binLoadingLabel').style.display = 'inline';
   document.getElementById('binBox').classList.remove('on');
-  try {
-    var res = await fetch('https://lookup.binlist.net/' + bin, {
-      headers: { 'Accept-Version': '3' }
-    });
-    if (!res.ok) throw new Error('BIN no encontrado');
-    var d = await res.json();
-    binData = d;
+  binData = null;
 
-    var bank     = (d.bank && d.bank.name) ? d.bank.name : 'DESCONOCIDO';
-    var country  = (d.country && d.country.name) ? d.country.name.toUpperCase() : 'DESCONOCIDO';
-    var emoji    = (d.country && d.country.emoji) ? d.country.emoji + ' ' : '';
-    var type     = d.type ? d.type.toUpperCase() : '—';
-    var category = d.prepaid ? 'PREPAGO' : (d.category ? d.category.toUpperCase() : 'CRÉDITO/DÉBITO');
-    var brand    = d.scheme ? d.scheme.toUpperCase() : '—';
-    var isIntl   = (d.country && d.country.alpha2 && d.country.alpha2 !== 'MX');
-
-    document.getElementById('binBank').textContent     = bank;
-    document.getElementById('binCountry').textContent  = emoji + country;
-    document.getElementById('binType').textContent     = type;
-    document.getElementById('binCategory').textContent = category;
-    document.getElementById('binBrand').textContent    = brand;
-    document.getElementById('binOrigin').textContent   = isIntl ? 'INTERNACIONAL' : 'NACIONAL';
-
-    document.getElementById('binCountry').className  = 'bin-stat-val' + (isIntl ? ' intl' : '');
-    document.getElementById('binOrigin').className   = 'bin-stat-val' + (isIntl ? ' intl' : '');
-    document.getElementById('binCategory').className = 'bin-stat-val' + (d.prepaid ? ' prepaid' : '');
-
-    document.getElementById('summaryBank').textContent    = bank;
-    document.getElementById('summaryCountry').textContent = emoji + country;
-    document.getElementById('summaryType').textContent    = type + (d.prepaid ? ' · PREPAGO' : '');
-
-    document.getElementById('binBox').classList.add('on');
-    addLog('BIN ' + bin + ' → ' + bank + ' · ' + country + (isIntl ? ' · INTERNACIONAL' : ''), isIntl ? 'warn' : 'ok');
-    if (d.prepaid) addLog('ADVERTENCIA: TARJETA PREPAGO DETECTADA', 'warn');
-
-  } catch(e) {
-    binData = null;
-    document.getElementById('binBank').textContent    = 'SIN DATOS';
-    document.getElementById('binCountry').textContent = '—';
-    document.getElementById('binType').textContent    = '—';
-    document.getElementById('binCategory').textContent= '—';
-    document.getElementById('binBrand').textContent   = '—';
-    document.getElementById('binOrigin').textContent  = '—';
-    document.getElementById('binBox').classList.add('on');
-    addLog('BIN LOOKUP · SIN RESULTADO PARA ' + bin, 'warn');
+  // 1. Try local DB first (instant)
+  var local = localBinLookup(bin);
+  if (local) {
+    renderBinData(bin, local, 'LOCAL DB');
+    document.getElementById('binLoadingLabel').style.display = 'none';
+    calcRisk();
+    // Still try API in background to enrich data
+    tryApiEnrich(bin);
+    return;
   }
+
+  // 2. Try binlist.net API
+  try {
+    var res = await fetch('https://lookup.binlist.net/' + bin, { headers: { 'Accept-Version': '3' } });
+    if (!res.ok) throw new Error('no data');
+    var d = await res.json();
+    var mapped = {
+      bank:    (d.bank && d.bank.name) ? d.bank.name : null,
+      country: (d.country && d.country.name) ? d.country.name : null,
+      alpha2:  (d.country && d.country.alpha2) ? d.country.alpha2 : null,
+      type:    d.type || null,
+      prepaid: d.prepaid || false,
+      scheme:  d.scheme ? d.scheme.toUpperCase() : null,
+    };
+    renderBinData(bin, mapped, 'API');
+  } catch(e) {
+    // 3. Fallback: infer from prefix only
+    var inferred = inferFromPrefix(bin);
+    binData = { country: null, prepaid: false };
+    document.getElementById('binBank').textContent     = '—';
+    document.getElementById('binCountry').textContent  = '—';
+    document.getElementById('binType').textContent     = '—';
+    document.getElementById('binCategory').textContent = '—';
+    document.getElementById('binBrand').textContent    = inferred.scheme;
+    document.getElementById('binOrigin').textContent   = '—';
+    document.getElementById('binBox').classList.add('on');
+    addLog('BIN ' + bin + ' · ESQUEMA: ' + inferred.scheme + ' · BANCO SIN DATOS', 'warn');
+  }
+
   document.getElementById('binLoadingLabel').style.display = 'none';
   calcRisk();
 }
+
+async function tryApiEnrich(bin) {
+  // Silent background enrichment when local DB hit
+  try {
+    var res = await fetch('https://lookup.binlist.net/' + bin, { headers: { 'Accept-Version': '3' } });
+    if (!res.ok) return;
+    var d = await res.json();
+    if (d.bank && d.bank.name) {
+      var mapped = {
+        bank:    d.bank.name,
+        country: (d.country && d.country.name) ? d.country.name : null,
+        alpha2:  (d.country && d.country.alpha2) ? d.country.alpha2 : null,
+        type:    d.type || null,
+        prepaid: d.prepaid || false,
+        scheme:  d.scheme ? d.scheme.toUpperCase() : null,
+      };
+      renderBinData(bin, mapped, 'API+LOCAL');
+      calcRisk();
+    }
+  } catch(e) { /* silent, local data already shown */ }
+}
+
 
 // ── Fraud risk calculator ──
 function calcRisk() {
@@ -713,7 +866,7 @@ async function runPreauth() {
   btn.disabled = true;
   btn.classList.add('loading');
   document.getElementById('preauthResult').classList.remove('on');
-  addLog('PRE-AUTH $1 · VERIFICANDO TARJETA...');
+  addLog('PRE-AUTH $3 · VERIFICANDO TARJETA...');
 
   try {
     var tokenResult = await tokenizeCard(cardNumber, customerName, parts[0], parts[1], cvv);
@@ -722,10 +875,10 @@ async function runPreauth() {
     var payload = {
       currency: 'MXN',
       customer_info: { name: customerName, email: 'preauth@homexi.com', phone: '5500000000' },
-      line_items: [{ name: 'Verificacion de Tarjeta', unit_price: 100, quantity: 1 }],
+      line_items: [{ name: 'Verificacion de Tarjeta', unit_price: 300, quantity: 1 }],
       charges: [{
         payment_method: { type: 'card', token_id: tokenResult.id, capture: false },
-        amount: 100
+        amount: 300
       }],
       metadata: { terminal: 'HOMEXI-VT-3.2', type: 'preauth_verification' }
     };
@@ -954,6 +1107,43 @@ function resetForm() {
   binData = null;
   calcRisk();
   updateSummary();
+}
+
+// ── LOGIN ──
+var LOGIN_PASSWORD = 'Homexi2024';  // ← CAMBIA ESTA CONTRASEÑA
+var loginAttempts  = 0;
+var loginLocked    = false;
+
+function checkLogin() {
+  if (loginLocked) return;
+  var input = document.getElementById('loginPassword').value;
+  if (input === LOGIN_PASSWORD) {
+    document.getElementById('loginScreen').classList.add('hidden');
+    sessionStorage.setItem('hx_auth', '1');
+    addLog('ACCESO AUTORIZADO · SESIÓN INICIADA', 'ok');
+  } else {
+    loginAttempts++;
+    document.getElementById('loginError').classList.add('on');
+    document.getElementById('loginPassword').value = '';
+    if (loginAttempts >= 5) {
+      loginLocked = true;
+      document.getElementById('loginAttempts').textContent = 'DEMASIADOS INTENTOS · ESPERA 30 SEGUNDOS';
+      document.getElementById('loginError').textContent = '✕ ACCESO BLOQUEADO TEMPORALMENTE';
+      setTimeout(function() {
+        loginLocked = false;
+        loginAttempts = 0;
+        document.getElementById('loginAttempts').textContent = '';
+        document.getElementById('loginError').textContent = '✕ CONTRASEÑA INCORRECTA — ACCESO DENEGADO';
+      }, 30000);
+    } else {
+      document.getElementById('loginAttempts').textContent = 'INTENTO ' + loginAttempts + ' DE 5';
+    }
+  }
+}
+
+// Auto-login if session already autenticada
+if (sessionStorage.getItem('hx_auth') === '1') {
+  document.getElementById('loginScreen').classList.add('hidden');
 }
 
 document.getElementById('authCode').addEventListener('input', updateSummary);
