@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HOMEXI // TERMINAL MOTO v3.1</title>
+<title>HOMEXI // TERMINAL MOTO v3.2</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -18,7 +18,6 @@
 body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:100vh;font-size:12px;}
 body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);pointer-events:none;z-index:9999;}
 
-/* HEADER */
 .header{border-bottom:1px solid var(--border2);background:var(--bg1);position:sticky;top:0;z-index:100;}
 .header-top{display:flex;align-items:center;justify-content:space-between;padding:5px 16px;border-bottom:1px solid var(--border);font-size:10px;color:var(--text-dim);letter-spacing:0.08em;}
 .header-top em{color:var(--green);font-style:normal;}
@@ -37,45 +36,81 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:
 .s-dot.a{background:var(--amber);box-shadow:0 0 5px var(--amber);}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
 
-/* LAYOUT */
-.main{display:grid;grid-template-columns:1fr 1fr 280px;gap:1px;background:var(--border);min-height:calc(100vh - 90px);}
+.main{display:grid;grid-template-columns:1fr 1fr 300px;gap:1px;background:var(--border);min-height:calc(100vh - 90px);}
 .panel{background:var(--bg1);padding:12px;}
 .panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border2);}
 .panel-title{font-size:9px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);}
 .panel-id{font-size:8px;color:var(--text-muted);letter-spacing:0.08em;}
 
-/* FORM */
 .field{margin-bottom:10px;}
 .field-label{font-size:8px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:4px;display:flex;justify-content:space-between;}
 .field-label .req{color:var(--green);}
 input,select{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:0;padding:7px 10px;color:var(--green);font-family:var(--mono);font-size:12px;font-weight:500;outline:none;transition:border-color 0.15s;appearance:none;letter-spacing:0.05em;}
 input:focus,select:focus{border-color:var(--green);background:var(--bg2);}
 input::placeholder{color:var(--text-muted);font-weight:400;}
+input[readonly]{color:var(--text-dim);cursor:default;}
 select option{background:#030f03;color:var(--green);}
 .field-row{display:grid;gap:8px;}.col2{grid-template-columns:1fr 1fr;}.col3{grid-template-columns:1fr 1fr 1fr;}
 .amount-wrap{position:relative;}
 .amt-prefix{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-size:11px;pointer-events:none;}
 .amount-wrap input{padding-left:50px;font-size:18px;font-weight:700;text-shadow:0 0 15px rgba(0,255,65,0.3);}
-.card-wrap{position:relative;}.card-wrap input{padding-right:44px;}
+.card-wrap{position:relative;}.card-wrap input{padding-right:50px;}
 .card-scheme{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:9px;color:var(--text-dim);pointer-events:none;letter-spacing:0.05em;}
 
-/* MODE TOGGLE */
 .mode-row{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:12px;background:var(--bg);border:1px solid var(--border2);padding:2px;}
 .mode-btn{padding:7px 10px;border:none;background:transparent;color:var(--text-dim);font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;}
 .mode-btn.on{background:var(--bg2);color:var(--green);border:1px solid var(--green3);}
 
-/* AUTH BOX */
 .auth-box{display:none;border:1px solid var(--green4);background:var(--bg2);padding:10px;margin-bottom:10px;}
 .auth-box.on{display:block;}
 .auth-tag{font-size:8px;font-weight:700;color:var(--cyan);letter-spacing:0.15em;margin-bottom:8px;}
 .auth-box input{text-align:center;letter-spacing:0.3em;font-size:20px;font-weight:700;color:var(--cyan);}
 
-/* DIVIDER */
 .divider{display:flex;align-items:center;gap:8px;margin:10px 0;font-size:8px;color:var(--text-muted);letter-spacing:0.12em;text-transform:uppercase;}
 .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border2);}
 
-/* BUTTON */
-.btn-submit{width:100%;padding:12px 16px;margin-top:12px;background:var(--bg);border:1px solid var(--green);color:var(--green);font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;box-shadow:0 0 20px rgba(0,255,65,0.06);}
+/* BIN INFO BOX */
+.bin-box{display:none;border:1px solid var(--border2);background:var(--bg2);margin-top:6px;padding:8px;}
+.bin-box.on{display:block;}
+.bin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;}
+.bin-stat{display:flex;flex-direction:column;gap:2px;}
+.bin-stat-label{font-size:7px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;}
+.bin-stat-val{font-size:10px;font-weight:700;color:var(--green);}
+.bin-stat-val.intl{color:var(--amber);}
+.bin-stat-val.prepaid{color:var(--red);}
+.bin-loading{font-size:9px;color:var(--text-dim);letter-spacing:0.08em;animation:blink 1s infinite;}
+
+/* FRAUD RISK */
+.risk-box{border:1px solid var(--border2);background:var(--bg2);padding:10px;margin-bottom:10px;}
+.risk-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.risk-title{font-size:8px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dim);}
+.risk-score{font-size:20px;font-weight:700;letter-spacing:0.05em;}
+.risk-score.low{color:var(--green);}
+.risk-score.med{color:var(--amber);}
+.risk-score.high{color:var(--red);}
+.risk-bar-wrap{height:4px;background:var(--border2);margin-bottom:8px;}
+.risk-bar{height:4px;transition:width 0.4s,background 0.4s;}
+.risk-factors{font-size:8px;color:var(--text-dim);line-height:1.7;}
+.risk-factor{display:flex;justify-content:space-between;}
+.risk-factor-val.ok{color:var(--green);}
+.risk-factor-val.warn{color:var(--amber);}
+.risk-factor-val.bad{color:var(--red);}
+
+/* PRE-AUTH BUTTON */
+.btn-preauth{width:100%;padding:9px 16px;margin-top:8px;background:var(--bg);border:1px solid var(--cyan);color:var(--cyan);font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
+.btn-preauth:hover{background:rgba(0,229,255,0.04);box-shadow:0 0 20px rgba(0,229,255,0.1);}
+.btn-preauth:disabled{opacity:0.3;cursor:not-allowed;}
+.btn-preauth .spinner{display:none;width:12px;height:12px;border:2px solid rgba(0,229,255,0.2);border-top-color:var(--cyan);border-radius:50%;animation:spin 0.6s linear infinite;margin:0 auto;}
+.btn-preauth.loading .btn-text{display:none;}.btn-preauth.loading .spinner{display:block;}
+
+/* PREAUTH RESULT */
+.preauth-result{display:none;margin-top:6px;padding:6px 10px;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;}
+.preauth-result.ok{border:1px solid rgba(0,255,65,0.3);background:rgba(0,255,65,0.05);color:var(--green);}
+.preauth-result.fail{border:1px solid rgba(255,45,45,0.3);background:rgba(255,45,45,0.05);color:var(--red);}
+.preauth-result.on{display:block;}
+
+/* SUBMIT */
+.btn-submit{width:100%;padding:12px 16px;margin-top:8px;background:var(--bg);border:1px solid var(--green);color:var(--green);font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;box-shadow:0 0 20px rgba(0,255,65,0.06);}
 .btn-submit:hover{background:rgba(0,255,65,0.04);box-shadow:0 0 28px rgba(0,255,65,0.15);}
 .btn-submit:active{transform:scale(0.99);}
 .btn-submit:disabled{opacity:0.3;cursor:not-allowed;}
@@ -87,7 +122,7 @@ select option{background:#030f03;color:var(--green);}
 
 /* SUMMARY */
 .summary-amount-display{text-align:center;padding:14px 0;border-bottom:1px solid var(--border2);margin-bottom:10px;}
-.big-amt{font-size:28px;font-weight:700;color:var(--green);text-shadow:0 0 25px rgba(0,255,65,0.35);letter-spacing:0.05em;}
+.big-amt{font-size:26px;font-weight:700;color:var(--green);text-shadow:0 0 25px rgba(0,255,65,0.35);letter-spacing:0.05em;}
 .amt-currency{font-size:9px;color:var(--text-dim);margin-top:2px;letter-spacing:0.15em;}
 .srow{display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid var(--border);font-size:10px;}
 .srow:last-child{border-bottom:none;}
@@ -95,8 +130,7 @@ select option{background:#030f03;color:var(--green);}
 .srow-val{font-weight:600;color:var(--text);text-align:right;max-width:60%;word-break:break-all;}
 
 /* RESPONSE */
-.response-box{display:none;border:1px solid var(--border2);background:var(--bg2);margin-top:8px;overflow:hidden;}
-.response-box.on{display:block;}
+.response-box{border:1px solid var(--border2);background:var(--bg2);overflow:hidden;}
 .response-box-header{padding:7px 10px;display:flex;align-items:center;gap:8px;font-size:9px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;}
 .response-box-header.ok{border-bottom:1px solid rgba(0,255,65,0.2);background:rgba(0,255,65,0.05);color:var(--green);}
 .response-box-header.fail{border-bottom:1px solid rgba(255,45,45,0.2);background:rgba(255,45,45,0.05);color:var(--red);}
@@ -106,13 +140,13 @@ select option{background:#030f03;color:var(--green);}
 .rkey{color:var(--text-muted);}.rval{font-weight:600;color:var(--text);}
 
 /* LOG */
-.terminal-log{background:var(--bg);border:1px solid var(--border2);padding:8px;height:100px;overflow-y:auto;margin-bottom:10px;scrollbar-width:thin;scrollbar-color:var(--green4) transparent;}
+.terminal-log{background:var(--bg);border:1px solid var(--border2);padding:8px;height:90px;overflow-y:auto;margin-bottom:10px;scrollbar-width:thin;scrollbar-color:var(--green4) transparent;}
 .tlog-line{font-size:9px;line-height:1.7;color:var(--text-dim);}
 .tlog-line.ok{color:var(--green2);}.tlog-line.warn{color:var(--amber);}.tlog-line.err{color:var(--red);}
 .tlog-line .ts{color:var(--text-muted);margin-right:6px;}
 
 /* TRANSACTIONS */
-.tx-entry{padding:8px 0;border-bottom:1px solid var(--border);font-size:9px;}
+.tx-entry{padding:7px 0;border-bottom:1px solid var(--border);font-size:9px;}
 .tx-entry:last-child{border-bottom:none;}
 .tx-top{display:flex;justify-content:space-between;align-items:baseline;}
 .tx-id-str{color:var(--text-dim);}.tx-amt-str{font-size:11px;font-weight:700;}
@@ -120,6 +154,7 @@ select option{background:#030f03;color:var(--green);}
 .tx-card-str{color:var(--text-dim);}
 .tx-badge{font-size:8px;font-weight:700;letter-spacing:0.1em;padding:1px 5px;}
 .tx-badge.ok{background:rgba(0,255,65,0.1);color:var(--green);}.tx-badge.fail{background:rgba(255,45,45,0.1);color:var(--red);}
+.tx-bin{font-size:8px;color:var(--text-muted);margin-top:1px;}
 
 ::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:var(--green4);}
 @media(max-width:900px){.main{grid-template-columns:1fr;}}
@@ -129,28 +164,30 @@ select option{background:#030f03;color:var(--green);}
 
 <header class="header">
   <div class="header-top">
-    <span>SYS/<em>HOMEXI-VT-3.1</em> // NODE <em>MX-TOR-01</em></span>
+    <span>SYS/<em>HOMEXI-VT-3.2</em> // NODE <em>MX-TOR-01</em></span>
     <span>API: <em>api.conekta.io</em> // <em id="currentTime">--:--:--</em></span>
   </div>
   <div class="header-main">
     <div>
       <div class="logo-ascii">HOMEXI//</div>
-      <div class="logo-sub">Virtual Terminal · MOTO Mode</div>
+      <div class="logo-sub">Virtual Terminal · MOTO Mode v3.2</div>
     </div>
     <div class="header-stats">
       <div class="hstat"><span class="hstat-label">Transacciones</span><span class="hstat-val cyan" id="hTxCount">0</span></div>
       <div class="hstat"><span class="hstat-label">Aprobadas</span><span class="hstat-val green" id="hApproved">0</span></div>
       <div class="hstat"><span class="hstat-label">Rechazadas</span><span class="hstat-val red" id="hDeclined">0</span></div>
+      <div class="hstat"><span class="hstat-label">Pre-Auth</span><span class="hstat-val cyan" id="hPreauth">0</span></div>
       <div class="hstat"><span class="hstat-label">Modo</span><span class="hstat-val amber">PRUEBAS</span></div>
     </div>
   </div>
   <div class="status-row">
     <div class="s-item"><span class="s-dot g"></span>API CONECTADA</div>
-    <div class="s-item"><span class="s-dot a"></span>MODO PRUEBAS ACTIVO</div>
+    <div class="s-item"><span class="s-dot a"></span>MODO PRUEBAS</div>
     <div class="s-item"><span class="s-dot g"></span>CONEKTA · ONLINE</div>
     <div class="s-item"><span class="s-dot g"></span>PCI-DSS · ACTIVO</div>
     <div class="s-item"><span class="s-dot g"></span>SSL · TLS 1.3</div>
-    <div class="s-item"><span class="s-dot g"></span>MOTO · HABILITADO</div>
+    <div class="s-item"><span class="s-dot g"></span>BIN LOOKUP · ACTIVO</div>
+    <div class="s-item"><span class="s-dot g"></span>ANTIFRAUDE · ACTIVO</div>
     <div class="s-item">UP: <span id="logUptime" style="color:var(--green);margin-left:4px">00:00:00</span></div>
   </div>
 </header>
@@ -181,17 +218,50 @@ select option{background:#030f03;color:var(--green);}
       <div class="field-label">Monto <span class="req">*</span></div>
       <div class="amount-wrap">
         <span class="amt-prefix">MXN $</span>
-        <input type="number" id="amount" placeholder="0.00" step="0.01" min="1" oninput="updateSummary()">
+        <input type="number" id="amount" placeholder="0.00" step="0.01" min="1" oninput="updateSummary();calcRisk()">
       </div>
     </div>
+
 
     <div class="divider">// datos de tarjeta</div>
 
     <div class="field">
-      <div class="field-label">Número de Tarjeta <span class="req">*</span></div>
+      <div class="field-label">
+        Número de Tarjeta <span class="req">*</span>
+        <span id="binLoadingLabel" style="display:none;font-size:8px;color:var(--amber);animation:blink 1s infinite;">CONSULTANDO BIN...</span>
+      </div>
       <div class="card-wrap">
-        <input type="text" id="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19" oninput="formatCard(this);updateSummary()">
+        <input type="text" id="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19" oninput="formatCard(this);updateSummary();onCardInput(this)">
         <span class="card-scheme" id="cardScheme">—</span>
+      </div>
+      <!-- BIN INFO -->
+      <div class="bin-box" id="binBox">
+        <div class="bin-grid">
+          <div class="bin-stat">
+            <span class="bin-stat-label">Banco emisor</span>
+            <span class="bin-stat-val" id="binBank">—</span>
+          </div>
+          <div class="bin-stat">
+            <span class="bin-stat-label">País</span>
+            <span class="bin-stat-val" id="binCountry">—</span>
+          </div>
+          <div class="bin-stat">
+            <span class="bin-stat-label">Tipo</span>
+            <span class="bin-stat-val" id="binType">—</span>
+          </div>
+          <div class="bin-stat">
+            <span class="bin-stat-label">Categoría</span>
+            <span class="bin-stat-val" id="binCategory">—</span>
+          </div>
+          <div class="bin-stat">
+            <span class="bin-stat-label">Marca</span>
+            <span class="bin-stat-val" id="binBrand">—</span>
+          </div>
+          <div class="bin-stat">
+            <span class="bin-stat-label">Origen</span>
+            <span class="bin-stat-val" id="binOrigin">—</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -206,7 +276,7 @@ select option{background:#030f03;color:var(--green);}
       </div>
       <div class="field">
         <div class="field-label">Moneda</div>
-        <input type="text" value="MXN" readonly style="color:var(--text-dim);text-align:center;">
+        <input type="text" value="MXN" readonly>
       </div>
     </div>
 
@@ -214,17 +284,17 @@ select option{background:#030f03;color:var(--green);}
 
     <div class="field">
       <div class="field-label">Nombre del Titular</div>
-      <input type="text" id="customerName" placeholder="NOMBRE COMPLETO" oninput="updateSummary()" style="text-transform:uppercase;">
+      <input type="text" id="customerName" placeholder="NOMBRE COMPLETO" oninput="updateSummary();calcRisk()" style="text-transform:uppercase;">
     </div>
 
     <div class="field-row col2">
       <div class="field">
         <div class="field-label">Email</div>
-        <input type="email" id="customerEmail" placeholder="correo@dominio.com">
+        <input type="email" id="customerEmail" placeholder="correo@dominio.com" oninput="calcRisk()">
       </div>
       <div class="field">
         <div class="field-label">Teléfono</div>
-        <input type="text" id="customerPhone" placeholder="+52 000 000 0000">
+        <input type="text" id="customerPhone" placeholder="+52 000 000 0000" oninput="calcRisk()">
       </div>
     </div>
 
@@ -232,6 +302,13 @@ select option{background:#030f03;color:var(--green);}
       <div class="field-label">Referencia / Descripción</div>
       <input type="text" id="description" placeholder="REF-000000 // DESCRIPCIÓN DEL SERVICIO">
     </div>
+
+    <!-- PRE-AUTH BUTTON -->
+    <button class="btn-preauth" id="preauthBtn" onclick="runPreauth()">
+      <span class="btn-text">◈ VERIFICAR TARJETA ($1 PRE-AUTH)</span>
+      <div class="spinner"></div>
+    </button>
+    <div class="preauth-result" id="preauthResult"></div>
 
     <button class="btn-submit" id="submitBtn" onclick="processPayment()">
       <span class="btn-text">&gt;_ PROCESAR TRANSACCIÓN</span>
@@ -241,14 +318,41 @@ select option{background:#030f03;color:var(--green);}
     <div class="sec-row">
       <span class="sec-badge">// SSL</span>
       <span class="sec-badge">// PCI DSS</span>
-      <span class="sec-badge">// CONEKTA SECURE</span>
-      <span class="sec-badge">// MOTO ENABLED</span>
+      <span class="sec-badge">// CONEKTA</span>
+      <span class="sec-badge">// MOTO</span>
+      <span class="sec-badge">// BIN CHECK</span>
     </div>
   </div>
 
-  <!-- PANEL 2: LOG + RESPONSE -->
+  <!-- PANEL 2: RIESGO + LOG + RESPUESTA -->
   <div class="panel">
     <div class="panel-header">
+      <span class="panel-title">// Análisis de Riesgo</span>
+      <span class="panel-id" id="riskLabel">EN ESPERA</span>
+    </div>
+
+    <!-- RISK BOX -->
+    <div class="risk-box">
+      <div class="risk-header">
+        <span class="risk-title">Puntuación de Riesgo de Fraude</span>
+        <span class="risk-score low" id="riskScore">0%</span>
+      </div>
+      <div class="risk-bar-wrap">
+        <div class="risk-bar" id="riskBar" style="width:0%;background:var(--green)"></div>
+      </div>
+      <div class="risk-factors">
+        <div class="risk-factor"><span>Tarjeta internacional</span><span class="risk-factor-val ok" id="rfIntl">—</span></div>
+        <div class="risk-factor"><span>Tarjeta prepago</span><span class="risk-factor-val ok" id="rfPrepaid">—</span></div>
+        <div class="risk-factor"><span>Monto alto (&gt;$50K)</span><span class="risk-factor-val ok" id="rfAmount">—</span></div>
+        <div class="risk-factor"><span>Sin email</span><span class="risk-factor-val ok" id="rfEmail">—</span></div>
+        <div class="risk-factor"><span>Sin teléfono</span><span class="risk-factor-val ok" id="rfPhone">—</span></div>
+        <div class="risk-factor"><span>Sin nombre titular</span><span class="risk-factor-val ok" id="rfName">—</span></div>
+        <div class="risk-factor"><span>Horario nocturno</span><span class="risk-factor-val ok" id="rfTime">—</span></div>
+        <div class="risk-factor"><span>Pre-auth verificada</span><span class="risk-factor-val ok" id="rfPreauth">—</span></div>
+      </div>
+    </div>
+
+    <div class="panel-header" style="margin-top:12px;">
       <span class="panel-title">// System Log</span>
       <span class="panel-id" id="logStatus">ONLINE</span>
     </div>
@@ -258,13 +362,13 @@ select option{background:#030f03;color:var(--green);}
       <span class="panel-title">// Respuesta del Banco</span>
       <span class="panel-id" id="responseStatus">EN ESPERA</span>
     </div>
-    <div class="response-box on" id="responsePanel">
+    <div class="response-box" id="responsePanel">
       <div class="response-box-header wait" id="responseHeader">
         <span id="responseIcon">■</span>
         <span id="responseTitle">EN ESPERA DE TRANSACCIÓN</span>
       </div>
       <div class="response-box-body" id="responseBody">
-        <div class="rfield"><span class="rkey">TERMINAL</span><span class="rval">HOMEXI-VT-3.1</span></div>
+        <div class="rfield"><span class="rkey">TERMINAL</span><span class="rval">HOMEXI-VT-3.2</span></div>
         <div class="rfield"><span class="rkey">PROCESADOR</span><span class="rval">CONEKTA</span></div>
         <div class="rfield"><span class="rkey">MODO</span><span class="rval" style="color:var(--amber)">PRUEBAS</span></div>
         <div class="rfield"><span class="rkey">ESTADO</span><span class="rval">LISTA</span></div>
@@ -286,11 +390,21 @@ select option{background:#030f03;color:var(--green);}
 
     <div class="srow"><span class="srow-key">TITULAR</span><span class="srow-val" id="summaryName">—</span></div>
     <div class="srow"><span class="srow-key">TARJETA</span><span class="srow-val" id="summaryCard">—</span></div>
-    <div class="srow"><span class="srow-key">ESQUEMA</span><span class="srow-val" id="summaryScheme" style="color:var(--text-dim)">—</span></div>
+    <div class="srow"><span class="srow-key">BANCO</span><span class="srow-val" id="summaryBank" style="color:var(--text-dim)">—</span></div>
+    <div class="srow"><span class="srow-key">PAÍS</span><span class="srow-val" id="summaryCountry" style="color:var(--text-dim)">—</span></div>
+    <div class="srow"><span class="srow-key">TIPO</span><span class="srow-val" id="summaryType" style="color:var(--text-dim)">—</span></div>
     <div class="srow"><span class="srow-key">MODO</span><span class="srow-val" id="summaryMode" style="color:var(--cyan)">COBRO DIRECTO</span></div>
     <div class="srow" id="summaryAuthRow" style="display:none">
       <span class="srow-key">AUTH CODE</span>
       <span class="srow-val" id="summaryAuth" style="color:var(--cyan)">—</span>
+    </div>
+    <div class="srow">
+      <span class="srow-key">RIESGO</span>
+      <span class="srow-val" id="summaryRisk" style="color:var(--green)">—</span>
+    </div>
+    <div class="srow">
+      <span class="srow-key">PRE-AUTH</span>
+      <span class="srow-val" id="summaryPreauth" style="color:var(--text-dim)">NO VERIFICADA</span>
     </div>
 
     <div class="panel-header" style="margin-top:14px;">
@@ -304,22 +418,23 @@ select option{background:#030f03;color:var(--green);}
 
 </div>
 
-<!-- Conekta se carga primero, el script principal al final -->
 <script src="https://cdn.conekta.io/js/latest/conekta.js"></script>
 <script>
-// ── Globals (var para evitar temporal dead zone) ──
-var currentMode = 'normal';
-var transactions = [];
-var txApproved = 0;
-var txDeclined = 0;
-var startTime = Date.now();
-var conektaReady = false;
-
 var PUBLIC_KEY  = 'key_N27574NfEE4cBdJAzdk0tjF';
 var PRIVATE_KEY = 'key_q0gjpHWFRxaKxNI7UdsBjIq';
 var API_URL     = 'https://api.conekta.io/orders';
 
-// ── Init Conekta cuando el DOM esté listo ──
+var currentMode    = 'normal';
+var transactions   = [];
+var txApproved     = 0;
+var txDeclined     = 0;
+var preauthCount   = 0;
+var startTime      = Date.now();
+var conektaReady   = false;
+var binData        = null;   // resultado del BIN lookup
+var preauthPassed  = false;  // si la pre-auth de $1 pasó
+var binLookupTimer = null;   // debounce timer
+
 window.addEventListener('load', function() {
   if (typeof Conekta !== 'undefined') {
     Conekta.setPublicKey(PUBLIC_KEY);
@@ -329,19 +444,20 @@ window.addEventListener('load', function() {
   } else {
     addLog('CONEKTA SDK · ERROR DE CARGA', 'err');
   }
+  calcRisk();
 });
 
-// ── Clock & uptime ──
+// ── Clock ──
 function ts() {
   return new Date().toLocaleTimeString('es-MX', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 function updateClock() {
   document.getElementById('currentTime').textContent = ts();
   var up = Math.floor((Date.now() - startTime) / 1000);
-  var h = String(Math.floor(up / 3600)).padStart(2, '0');
-  var m = String(Math.floor((up % 3600) / 60)).padStart(2, '0');
-  var s = String(up % 60).padStart(2, '0');
-  document.getElementById('logUptime').textContent = h + ':' + m + ':' + s;
+  var h = String(Math.floor(up / 3600)).padStart(2,'0');
+  var m = String(Math.floor((up % 3600) / 60)).padStart(2,'0');
+  var s = String(up % 60).padStart(2,'0');
+  document.getElementById('logUptime').textContent = h+':'+m+':'+s;
 }
 setInterval(updateClock, 1000);
 updateClock();
@@ -352,16 +468,15 @@ function addLog(msg, type) {
   var log = document.getElementById('terminalLog');
   var line = document.createElement('div');
   line.className = 'tlog-line ' + type;
-  line.innerHTML = '<span class="ts">' + ts() + '</span>' + msg;
+  line.innerHTML = '<span class="ts">'+ts()+'</span>'+msg;
   log.appendChild(line);
   log.scrollTop = log.scrollHeight;
 }
-
-// Init log entries
-addLog('SISTEMA INICIADO · HOMEXI-VT-3.1', 'ok');
+addLog('SISTEMA INICIADO · HOMEXI-VT-3.2', 'ok');
 addLog('CONECTANDO A API CONEKTA...', 'ok');
 addLog('MODO PRUEBAS ACTIVO', 'warn');
-addLog('TERMINAL LISTA', 'ok');
+addLog('BIN LOOKUP · LISTO', 'ok');
+addLog('MÓDULO ANTIFRAUDE · ACTIVO', 'ok');
 
 // ── Mode ──
 function setMode(mode) {
@@ -379,20 +494,180 @@ function setMode(mode) {
 
 // ── Format card ──
 function formatCard(input) {
-  var v = input.value.replace(/\D/g, '').substring(0, 16);
-  input.value = v.replace(/(.{4})/g, '$1 ').trim();
+  var v = input.value.replace(/\D/g,'').substring(0,16);
+  input.value = v.replace(/(.{4})/g,'$1 ').trim();
   var scheme = '—';
   if (v.charAt(0) === '4') scheme = 'VISA';
   else if (/^5[1-5]/.test(v)) scheme = 'MC';
   else if (/^3[47]/.test(v)) scheme = 'AMEX';
+  else if (/^6/.test(v)) scheme = 'DISCOVER';
   document.getElementById('cardScheme').textContent = scheme;
-  document.getElementById('summaryScheme').textContent = scheme === '—' ? '—' : scheme;
+}
+
+// ── BIN Lookup (debounced, fires after 6 digits) ──
+function onCardInput(input) {
+  var v = input.value.replace(/\D/g,'');
+  // Reset preauth when card changes
+  if (preauthPassed) {
+    preauthPassed = false;
+    document.getElementById('summaryPreauth').textContent = 'NO VERIFICADA';
+    document.getElementById('summaryPreauth').style.color = 'var(--text-dim)';
+    document.getElementById('preauthResult').classList.remove('on');
+    document.getElementById('rfPreauth').textContent = '—';
+    document.getElementById('rfPreauth').className = 'risk-factor-val ok';
+  }
+  if (v.length < 6) {
+    hideBin();
+    binData = null;
+    calcRisk();
+    return;
+  }
+  clearTimeout(binLookupTimer);
+  binLookupTimer = setTimeout(function() { lookupBin(v.substring(0,6)); }, 400);
+}
+
+function hideBin() {
+  document.getElementById('binBox').classList.remove('on');
+  document.getElementById('binLoadingLabel').style.display = 'none';
+  document.getElementById('summaryBank').textContent = '—';
+  document.getElementById('summaryCountry').textContent = '—';
+  document.getElementById('summaryType').textContent = '—';
+}
+
+async function lookupBin(bin) {
+  document.getElementById('binLoadingLabel').style.display = 'inline';
+  document.getElementById('binBox').classList.remove('on');
+  try {
+    var res = await fetch('https://lookup.binlist.net/' + bin, {
+      headers: { 'Accept-Version': '3' }
+    });
+    if (!res.ok) throw new Error('BIN no encontrado');
+    var d = await res.json();
+    binData = d;
+
+    var bank     = (d.bank && d.bank.name) ? d.bank.name : 'DESCONOCIDO';
+    var country  = (d.country && d.country.name) ? d.country.name.toUpperCase() : 'DESCONOCIDO';
+    var emoji    = (d.country && d.country.emoji) ? d.country.emoji + ' ' : '';
+    var type     = d.type ? d.type.toUpperCase() : '—';
+    var category = d.prepaid ? 'PREPAGO' : (d.category ? d.category.toUpperCase() : 'CRÉDITO/DÉBITO');
+    var brand    = d.scheme ? d.scheme.toUpperCase() : '—';
+    var isIntl   = (d.country && d.country.alpha2 && d.country.alpha2 !== 'MX');
+
+    document.getElementById('binBank').textContent     = bank;
+    document.getElementById('binCountry').textContent  = emoji + country;
+    document.getElementById('binType').textContent     = type;
+    document.getElementById('binCategory').textContent = category;
+    document.getElementById('binBrand').textContent    = brand;
+    document.getElementById('binOrigin').textContent   = isIntl ? 'INTERNACIONAL' : 'NACIONAL';
+
+    document.getElementById('binCountry').className  = 'bin-stat-val' + (isIntl ? ' intl' : '');
+    document.getElementById('binOrigin').className   = 'bin-stat-val' + (isIntl ? ' intl' : '');
+    document.getElementById('binCategory').className = 'bin-stat-val' + (d.prepaid ? ' prepaid' : '');
+
+    document.getElementById('summaryBank').textContent    = bank;
+    document.getElementById('summaryCountry').textContent = emoji + country;
+    document.getElementById('summaryType').textContent    = type + (d.prepaid ? ' · PREPAGO' : '');
+
+    document.getElementById('binBox').classList.add('on');
+    addLog('BIN ' + bin + ' → ' + bank + ' · ' + country + (isIntl ? ' · INTERNACIONAL' : ''), isIntl ? 'warn' : 'ok');
+    if (d.prepaid) addLog('ADVERTENCIA: TARJETA PREPAGO DETECTADA', 'warn');
+
+  } catch(e) {
+    binData = null;
+    document.getElementById('binBank').textContent    = 'SIN DATOS';
+    document.getElementById('binCountry').textContent = '—';
+    document.getElementById('binType').textContent    = '—';
+    document.getElementById('binCategory').textContent= '—';
+    document.getElementById('binBrand').textContent   = '—';
+    document.getElementById('binOrigin').textContent  = '—';
+    document.getElementById('binBox').classList.add('on');
+    addLog('BIN LOOKUP · SIN RESULTADO PARA ' + bin, 'warn');
+  }
+  document.getElementById('binLoadingLabel').style.display = 'none';
+  calcRisk();
+}
+
+// ── Fraud risk calculator ──
+function calcRisk() {
+  var score = 0;
+  var factors = {};
+
+  // Internacional
+  var isIntl = binData && binData.country && binData.country.alpha2 && binData.country.alpha2 !== 'MX';
+  if (isIntl) { score += 25; factors.intl = 'warn'; } else { factors.intl = 'ok'; }
+
+  // Prepago
+  var isPrepaid = binData && binData.prepaid;
+  if (isPrepaid) { score += 20; factors.prepaid = 'bad'; } else { factors.prepaid = 'ok'; }
+
+  // Monto alto
+  var amt = parseFloat(document.getElementById('amount').value) || 0;
+  if (amt > 50000) { score += 20; factors.amount = 'warn'; }
+  else if (amt > 20000) { score += 10; factors.amount = 'warn'; }
+  else { factors.amount = 'ok'; }
+
+  // Sin email
+  var email = document.getElementById('customerEmail').value.trim();
+  if (!email) { score += 10; factors.email = 'warn'; } else { factors.email = 'ok'; }
+
+  // Sin teléfono
+  var phone = document.getElementById('customerPhone').value.trim();
+  if (!phone) { score += 10; factors.phone = 'warn'; } else { factors.phone = 'ok'; }
+
+  // Sin nombre
+  var name = document.getElementById('customerName').value.trim();
+  if (!name) { score += 10; factors.name = 'warn'; } else { factors.name = 'ok'; }
+
+  // Horario nocturno (23:00 - 06:00)
+  var hour = new Date().getHours();
+  if (hour >= 23 || hour < 6) { score += 10; factors.time = 'warn'; } else { factors.time = 'ok'; }
+
+  // Pre-auth pasada = reduce riesgo
+  if (preauthPassed) { score = Math.max(0, score - 20); factors.preauth = 'ok'; } else { factors.preauth = 'warn'; }
+
+  score = Math.min(100, Math.max(0, score));
+
+  // Update UI
+  var scoreEl = document.getElementById('riskScore');
+  var barEl   = document.getElementById('riskBar');
+  var labelEl = document.getElementById('riskLabel');
+  var summaryEl = document.getElementById('summaryRisk');
+
+  scoreEl.textContent = score + '%';
+  barEl.style.width   = score + '%';
+
+  var cls, color, label;
+  if (score <= 30)      { cls='low'; color='var(--green)'; label='BAJO'; }
+  else if (score <= 60) { cls='med'; color='var(--amber)'; label='MEDIO'; }
+  else                  { cls='high'; color='var(--red)';  label='ALTO'; }
+
+  scoreEl.className  = 'risk-score ' + cls;
+  barEl.style.background = color;
+  labelEl.textContent = label + ' · ' + score + '%';
+  summaryEl.textContent = score + '% · ' + label;
+  summaryEl.style.color = color;
+
+  // Factor labels
+  var map = {
+    rfIntl:    factors.intl    === 'warn' ? { t:'SÍ +25%', c:'bad'  } : { t:'NO',    c:'ok' },
+    rfPrepaid: factors.prepaid === 'bad'  ? { t:'SÍ +20%', c:'bad'  } : { t:'NO',    c:'ok' },
+    rfAmount:  factors.amount  === 'warn' ? { t:'SÍ +'+( amt>50000?20:10)+'%', c:'warn' } : { t:'NO',    c:'ok' },
+    rfEmail:   factors.email   === 'warn' ? { t:'SÍ +10%', c:'warn' } : { t:'NO',    c:'ok' },
+    rfPhone:   factors.phone   === 'warn' ? { t:'SÍ +10%', c:'warn' } : { t:'NO',    c:'ok' },
+    rfName:    factors.name    === 'warn' ? { t:'SÍ +10%', c:'warn' } : { t:'NO',    c:'ok' },
+    rfTime:    factors.time    === 'warn' ? { t:'SÍ +10%', c:'warn' } : { t:'NO',    c:'ok' },
+    rfPreauth: preauthPassed               ? { t:'SÍ -20%', c:'ok'  } : { t:'NO',    c:'warn' },
+  };
+  Object.keys(map).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) { el.textContent = map[id].t; el.className = 'risk-factor-val ' + map[id].c; }
+  });
 }
 
 // ── Format expiry ──
 function formatExpiry(input) {
-  var v = input.value.replace(/\D/g, '');
-  if (v.length >= 2) v = v.substring(0, 2) + '/' + v.substring(2, 4);
+  var v = input.value.replace(/\D/g,'');
+  if (v.length >= 2) v = v.substring(0,2)+'/'+v.substring(2,4);
   input.value = v;
 }
 
@@ -402,19 +677,112 @@ function updateSummary() {
   var name = document.getElementById('customerName').value;
   var card = document.getElementById('cardNumber').value;
   document.getElementById('summaryAmount').textContent =
-    amt ? '$' + parseFloat(amt).toLocaleString('es-MX', { minimumFractionDigits: 2 }) : '$0.00';
+    amt ? '$'+parseFloat(amt).toLocaleString('es-MX',{minimumFractionDigits:2}) : '$0.00';
   document.getElementById('summaryName').textContent = name ? name.toUpperCase() : '—';
-  var clean = card.replace(/\s/g, '');
-  document.getElementById('summaryCard').textContent = clean.length >= 4 ? '•••• ' + clean.slice(-4) : '—';
+  var clean = card.replace(/\s/g,'');
+  document.getElementById('summaryCard').textContent = clean.length >= 4 ? '•••• '+clean.slice(-4) : '—';
   document.getElementById('summaryAuth').textContent = document.getElementById('authCode').value || '—';
 }
 
-// ── Process payment ──
+// ── Tokenize helper ──
+function tokenizeCard(cardNumber, customerName, expMonth, expYear, cvv) {
+  return new Promise(function(resolve, reject) {
+    Conekta.Token.create(
+      { card: { number: cardNumber, name: customerName, exp_year: '20'+expYear, exp_month: expMonth, cvc: cvv } },
+      function(t) { resolve(t); },
+      function(e) { reject(e); }
+    );
+  });
+}
+
+// ── PRE-AUTH ($1 verification) ──
+async function runPreauth() {
+  if (!conektaReady) return showPreauthResult(false, 'CONEKTA NO DISPONIBLE');
+
+  var cardNumber   = document.getElementById('cardNumber').value.replace(/\s/g,'');
+  var expiry       = document.getElementById('expiry').value;
+  var cvv          = document.getElementById('cvv').value;
+  var customerName = document.getElementById('customerName').value || 'Cliente';
+
+  if (cardNumber.length < 15) return showPreauthResult(false, 'INGRESA UN NÚMERO DE TARJETA VÁLIDO');
+  if (!expiry || expiry.length < 5) return showPreauthResult(false, 'INGRESA LA FECHA DE VENCIMIENTO');
+  if (!cvv || cvv.length < 3) return showPreauthResult(false, 'INGRESA EL CVV');
+
+  var parts = expiry.split('/');
+  var btn = document.getElementById('preauthBtn');
+  btn.disabled = true;
+  btn.classList.add('loading');
+  document.getElementById('preauthResult').classList.remove('on');
+  addLog('PRE-AUTH $1 · VERIFICANDO TARJETA...');
+
+  try {
+    var tokenResult = await tokenizeCard(cardNumber, customerName, parts[0], parts[1], cvv);
+    addLog('TOKEN PRE-AUTH · OK');
+
+    var payload = {
+      currency: 'MXN',
+      customer_info: { name: customerName, email: 'preauth@homexi.com', phone: '5500000000' },
+      line_items: [{ name: 'Verificacion de Tarjeta', unit_price: 100, quantity: 1 }],
+      charges: [{
+        payment_method: { type: 'card', token_id: tokenResult.id, capture: false },
+        amount: 100
+      }],
+      metadata: { terminal: 'HOMEXI-VT-3.2', type: 'preauth_verification' }
+    };
+
+    var response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/vnd.conekta-v2.1.0+json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + PRIVATE_KEY
+      },
+      body: JSON.stringify(payload)
+    });
+
+    var data = await response.json();
+    var ok = response.ok && data.charges && data.charges.data && data.charges.data[0];
+
+    if (ok) {
+      preauthPassed = true;
+      preauthCount++;
+      document.getElementById('hPreauth').textContent = preauthCount;
+      document.getElementById('summaryPreauth').textContent = '✓ VERIFICADA';
+      document.getElementById('summaryPreauth').style.color = 'var(--green)';
+      showPreauthResult(true, '✓ TARJETA ACTIVA · PAGO REAL PUEDE PROCEDER');
+      addLog('PRE-AUTH · TARJETA VERIFICADA · ACTIVA', 'ok');
+    } else {
+      preauthPassed = false;
+      document.getElementById('summaryPreauth').textContent = '✕ FALLÓ';
+      document.getElementById('summaryPreauth').style.color = 'var(--red)';
+      var errMsg = (data.details && data.details[0] && data.details[0].message) || data.message || 'TARJETA DECLINADA';
+      showPreauthResult(false, '✕ TARJETA NO VÁLIDA · ' + errMsg.toUpperCase());
+      addLog('PRE-AUTH · TARJETA DECLINADA · ' + errMsg, 'err');
+    }
+    calcRisk();
+
+  } catch(err) {
+    var msg = err.message_to_purchaser || err.message || 'ERROR';
+    showPreauthResult(false, '✕ ERROR · ' + msg.toUpperCase());
+    addLog('PRE-AUTH · ERROR · ' + msg, 'err');
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove('loading');
+  }
+}
+
+function showPreauthResult(success, msg) {
+  var el = document.getElementById('preauthResult');
+  el.className = 'preauth-result on ' + (success ? 'ok' : 'fail');
+  el.textContent = msg;
+}
+
+// ── PROCESS PAYMENT ──
 async function processPayment() {
   if (!conektaReady) return showError('CONEKTA SDK NO DISPONIBLE — RECARGA LA PÁGINA');
 
   var amount       = document.getElementById('amount').value;
-  var cardNumber   = document.getElementById('cardNumber').value.replace(/\s/g, '');
+  var cardNumber   = document.getElementById('cardNumber').value.replace(/\s/g,'');
   var expiry       = document.getElementById('expiry').value;
   var cvv          = document.getElementById('cvv').value;
   var customerName = document.getElementById('customerName').value || 'Cliente';
@@ -423,41 +791,42 @@ async function processPayment() {
   var authCode     = document.getElementById('authCode').value;
   var phone        = document.getElementById('customerPhone').value || '5500000000';
 
-  if (!amount || parseFloat(amount) < 1)     return showError('MONTO INVÁLIDO');
-  if (cardNumber.length < 15)                return showError('TARJETA INVÁLIDA');
-  if (!expiry || expiry.length < 5)          return showError('FECHA INVÁLIDA');
-  if (!cvv || cvv.length < 3)                return showError('CVV INVÁLIDO');
+  if (!amount || parseFloat(amount) < 1)   return showError('MONTO INVÁLIDO');
+  if (cardNumber.length < 15)              return showError('TARJETA INVÁLIDA');
+  if (!expiry || expiry.length < 5)        return showError('FECHA INVÁLIDA');
+  if (!cvv || cvv.length < 3)              return showError('CVV INVÁLIDO');
   if (currentMode === 'capture' && (!authCode || authCode.length < 4))
-                                             return showError('AUTH CODE REQUERIDO');
+                                           return showError('AUTH CODE REQUERIDO');
 
   var parts = expiry.split('/');
-  var expMonth = parts[0];
-  var expYear  = parts[1];
-
   var btn = document.getElementById('submitBtn');
   btn.disabled = true;
   btn.classList.add('loading');
   showPending();
-  addLog('INICIANDO TX · $' + parseFloat(amount).toLocaleString('es-MX', { minimumFractionDigits: 2 }) + ' MXN');
+  addLog('INICIANDO TX · $'+parseFloat(amount).toLocaleString('es-MX',{minimumFractionDigits:2})+' MXN');
 
   try {
     addLog('TOKENIZANDO TARJETA...');
-    var tokenResult = await new Promise(function(resolve, reject) {
-      Conekta.Token.create(
-        { card: { number: cardNumber, name: customerName, exp_year: '20' + expYear, exp_month: expMonth, cvc: cvv } },
-        function(token) { resolve(token); },
-        function(error) { reject(error); }
-      );
-    });
+    var tokenResult = await tokenizeCard(cardNumber, customerName, parts[0], parts[1], cvv);
+    addLog('TOKEN OK · ' + tokenResult.id.substring(0,16) + '...');
 
-    addLog('TOKEN OK · ' + tokenResult.id.substring(0, 16) + '...');
+    var riskScore = document.getElementById('riskScore').textContent;
+    var binCountry = (binData && binData.country && binData.country.name) || 'DESCONOCIDO';
+    var binBank    = (binData && binData.bank && binData.bank.name) || 'DESCONOCIDO';
 
     var payload = {
       currency: 'MXN',
       customer_info: { name: customerName, email: customerEmail, phone: phone },
-      line_items: [{ name: description, unit_price: Math.round(parseFloat(amount) * 100), quantity: 1 }],
-      charges: [{ payment_method: { type: 'card', token_id: tokenResult.id }, amount: Math.round(parseFloat(amount) * 100) }],
-      metadata: { terminal: 'HOMEXI-VIRTUAL-MOTO-3.1', mode: currentMode }
+      line_items: [{ name: description, unit_price: Math.round(parseFloat(amount)*100), quantity: 1 }],
+      charges: [{ payment_method: { type: 'card', token_id: tokenResult.id }, amount: Math.round(parseFloat(amount)*100) }],
+      metadata: {
+        terminal:       'HOMEXI-VIRTUAL-MOTO-3.2',
+        mode:           currentMode,
+        risk_score:     riskScore,
+        card_country:   binCountry,
+        card_bank:      binBank,
+        preauth_passed: preauthPassed ? 'SI' : 'NO'
+      }
     };
 
     if (currentMode === 'capture') {
@@ -469,29 +838,32 @@ async function processPayment() {
     var response = await fetch(API_URL, {
       method: 'POST',
       headers: {
-        'Accept':        'application/vnd.conekta-v2.1.0+json',
-        'Content-Type':  'application/json',
+        'Accept': 'application/vnd.conekta-v2.1.0+json',
+        'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + PRIVATE_KEY
       },
       body: JSON.stringify(payload)
     });
 
     var data = await response.json();
-    var isPaid = response.ok && (data.payment_status === 'paid' || (data.charges && data.charges.data && data.charges.data[0] && data.charges.data[0].status === 'paid'));
+    var charge = data.charges && data.charges.data && data.charges.data[0];
+    var isPaid = response.ok && charge && (charge.status === 'paid' || data.payment_status === 'paid');
 
     if (isPaid) {
-      var charge = data.charges && data.charges.data && data.charges.data[0];
-      var authResCode = (charge && charge.payment_method && charge.payment_method.auth_code) || authCode || '—';
-      showSuccess({ id: data.id, amount: parseFloat(amount), authCode: authResCode, last4: cardNumber.slice(-4), name: customerName });
-      addLog('APROBADA · AUTH: ' + authResCode, 'ok');
-      addTransaction({ id: (data.id || '').substring(0, 14) + '...', last4: cardNumber.slice(-4), amount: parseFloat(amount), status: 'paid' });
+      var authResCode = (charge.payment_method && charge.payment_method.auth_code) || authCode || '—';
+      showSuccess({ id: data.id, amount: parseFloat(amount), authCode: authResCode, last4: cardNumber.slice(-4), name: customerName, risk: riskScore, country: binCountry });
+      addLog('APROBADA · AUTH: ' + authResCode + ' · RIESGO: ' + riskScore, 'ok');
+      addTransaction({ id: (data.id||'').substring(0,14)+'...', last4: cardNumber.slice(-4), amount: parseFloat(amount), status: 'paid', country: binCountry, bank: binBank });
       txApproved++;
+      preauthPassed = false;
+      document.getElementById('summaryPreauth').textContent = 'NO VERIFICADA';
+      document.getElementById('summaryPreauth').style.color = 'var(--text-dim)';
       resetForm();
     } else {
       var errMsg = (data.details && data.details[0] && data.details[0].message) || data.message || 'TRANSACCIÓN RECHAZADA';
       showError(errMsg);
       addLog('RECHAZADA · ' + errMsg, 'err');
-      addTransaction({ id: 'DECLINED', last4: cardNumber.slice(-4), amount: parseFloat(amount), status: 'declined' });
+      addTransaction({ id: 'DECLINED', last4: cardNumber.slice(-4), amount: parseFloat(amount), status: 'declined', country: binCountry, bank: binBank });
       txDeclined++;
     }
 
@@ -499,7 +871,7 @@ async function processPayment() {
     document.getElementById('hDeclined').textContent = txDeclined;
     document.getElementById('hTxCount').textContent  = txApproved + txDeclined;
 
-  } catch (err) {
+  } catch(err) {
     var msg = err.message_to_purchaser || err.message || 'ERROR DE CONEXIÓN';
     showError(msg);
     addLog('ERROR · ' + msg, 'err');
@@ -511,38 +883,37 @@ async function processPayment() {
 
 // ── Response states ──
 function showPending() {
-  document.getElementById('responsePanel').classList.add('on');
   document.getElementById('responseHeader').className = 'response-box-header wait';
   document.getElementById('responseIcon').textContent  = '◌';
   document.getElementById('responseTitle').textContent = 'PROCESANDO TRANSACCIÓN...';
   document.getElementById('responseStatus').textContent = 'PROCESANDO';
   document.getElementById('responseBody').innerHTML =
-    '<div class="rfield"><span class="rkey">MODO</span><span class="rval">' + (currentMode === 'capture' ? 'CAPTURE ONLY' : 'COBRO DIRECTO') + '</span></div>' +
+    '<div class="rfield"><span class="rkey">MODO</span><span class="rval">'+(currentMode==='capture'?'CAPTURE ONLY':'COBRO DIRECTO')+'</span></div>'+
     '<div class="rfield"><span class="rkey">ESTADO</span><span class="rval" style="color:var(--amber)">ENVIANDO AL BANCO...</span></div>';
 }
 
 function showSuccess(data) {
-  document.getElementById('responsePanel').classList.add('on');
   document.getElementById('responseHeader').className = 'response-box-header ok';
   document.getElementById('responseIcon').textContent  = '✓';
   document.getElementById('responseTitle').textContent = 'TRANSACCIÓN APROBADA';
   document.getElementById('responseStatus').textContent = 'APROBADA';
   document.getElementById('responseBody').innerHTML =
-    '<div class="rfield"><span class="rkey">ORDER ID</span><span class="rval">' + (data.id || '—').substring(0, 18) + '...</span></div>' +
-    '<div class="rfield"><span class="rkey">MONTO</span><span class="rval" style="color:var(--green)">$' + data.amount.toLocaleString('es-MX', { minimumFractionDigits: 2 }) + ' MXN</span></div>' +
-    '<div class="rfield"><span class="rkey">TARJETA</span><span class="rval">•••• ' + data.last4 + '</span></div>' +
-    '<div class="rfield"><span class="rkey">AUTH CODE</span><span class="rval" style="color:var(--cyan)">' + data.authCode + '</span></div>' +
-    '<div class="rfield"><span class="rkey">TITULAR</span><span class="rval">' + data.name.toUpperCase() + '</span></div>' +
+    '<div class="rfield"><span class="rkey">ORDER ID</span><span class="rval">'+(data.id||'—').substring(0,18)+'...</span></div>'+
+    '<div class="rfield"><span class="rkey">MONTO</span><span class="rval" style="color:var(--green)">$'+data.amount.toLocaleString('es-MX',{minimumFractionDigits:2})+' MXN</span></div>'+
+    '<div class="rfield"><span class="rkey">TARJETA</span><span class="rval">•••• '+data.last4+'</span></div>'+
+    '<div class="rfield"><span class="rkey">AUTH CODE</span><span class="rval" style="color:var(--cyan)">'+data.authCode+'</span></div>'+
+    '<div class="rfield"><span class="rkey">TITULAR</span><span class="rval">'+data.name.toUpperCase()+'</span></div>'+
+    '<div class="rfield"><span class="rkey">PAÍS TARJETA</span><span class="rval">'+data.country+'</span></div>'+
+    '<div class="rfield"><span class="rkey">RIESGO</span><span class="rval">'+data.risk+'</span></div>'+
     '<div class="rfield"><span class="rkey">ESTADO</span><span class="rval" style="color:var(--green)">PAGADO ✓</span></div>';
 }
 
 function showError(msg) {
-  document.getElementById('responsePanel').classList.add('on');
   document.getElementById('responseHeader').className = 'response-box-header fail';
   document.getElementById('responseIcon').textContent  = '✕';
   document.getElementById('responseTitle').textContent = 'TRANSACCIÓN RECHAZADA';
   document.getElementById('responseStatus').textContent = 'RECHAZADA';
-  document.getElementById('responseBody').innerHTML = '<div style="color:var(--red);line-height:1.6;">' + msg + '</div>';
+  document.getElementById('responseBody').innerHTML = '<div style="color:var(--red);line-height:1.6;">'+msg+'</div>';
 }
 
 // ── Transactions ──
@@ -554,28 +925,34 @@ function addTransaction(tx) {
 
 function renderTransactions() {
   var list = document.getElementById('txList');
-  document.getElementById('txCountLabel').textContent = transactions.length + ' REGISTRO' + (transactions.length !== 1 ? 'S' : '');
+  document.getElementById('txCountLabel').textContent = transactions.length+' REGISTRO'+(transactions.length!==1?'S':'');
   if (!transactions.length) {
     list.innerHTML = '<div style="padding:12px 0;text-align:center;font-size:9px;color:var(--text-muted);letter-spacing:0.1em;">SIN TRANSACCIONES AÚN</div>';
     return;
   }
   list.innerHTML = transactions.map(function(tx) {
-    var color = tx.status === 'paid' ? 'var(--green)' : 'var(--red)';
-    var badge = tx.status === 'paid' ? 'ok' : 'fail';
-    var label = tx.status === 'paid' ? 'PAGADO' : 'DECLINADO';
-    return '<div class="tx-entry">' +
-      '<div class="tx-top"><span class="tx-id-str">' + tx.id + '</span>' +
-      '<span class="tx-amt-str" style="color:' + color + '">$' + tx.amount.toLocaleString('es-MX', { minimumFractionDigits: 2 }) + '</span></div>' +
-      '<div class="tx-mid"><span class="tx-card-str">•••• ' + tx.last4 + '</span>' +
-      '<span class="tx-badge ' + badge + '">' + label + '</span></div></div>';
+    var color = tx.status==='paid' ? 'var(--green)' : 'var(--red)';
+    var badge = tx.status==='paid' ? 'ok' : 'fail';
+    var label = tx.status==='paid' ? 'PAGADO' : 'DECLINADO';
+    return '<div class="tx-entry">'+
+      '<div class="tx-top"><span class="tx-id-str">'+tx.id+'</span>'+
+      '<span class="tx-amt-str" style="color:'+color+'">$'+tx.amount.toLocaleString('es-MX',{minimumFractionDigits:2})+'</span></div>'+
+      '<div class="tx-mid"><span class="tx-card-str">•••• '+tx.last4+'</span>'+
+      '<span class="tx-badge '+badge+'">'+label+'</span></div>'+
+      '<div class="tx-bin">'+(tx.bank||'')+(tx.country?' · '+tx.country:'')+'</div>'+
+      '</div>';
   }).join('');
 }
 
 // ── Reset ──
 function resetForm() {
   ['amount','cardNumber','expiry','cvv','customerName','customerEmail','customerPhone','description','authCode']
-    .forEach(function(id) { document.getElementById(id).value = ''; });
+    .forEach(function(id) { document.getElementById(id).value=''; });
   document.getElementById('cardScheme').textContent = '—';
+  document.getElementById('preauthResult').classList.remove('on');
+  hideBin();
+  binData = null;
+  calcRisk();
   updateSummary();
 }
 
