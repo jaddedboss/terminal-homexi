@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terminal Virtual MOTO — Homexi</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2236;
+    --border: #1e2d45;
+    --accent: #00d4ff;
+    --accent2: #0066ff;
+    --success: #00e87a;
+    --error: #ff3b5c;
+    --warning: #ffb800;
+    --text: #e2e8f0;
+    --text-dim: #64748b;
+    --text-muted: #334155;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    background-image: 
+      radial-gradient(ellipse at 20% 0%, rgba(0,102,255,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 100%, rgba(0,212,255,0.05) 0%, transparent 60%);
+  }
+
+  /* Header */
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(10,14,26,0.9);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-mark {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 14px;
+    color: white;
+  }
+
+  .logo-text {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--text);
+  }
+
+  .logo-sub {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .status-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 8px var(--success);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* Main layout */
+  .main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 24px;
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 24px;
+  }
+
+  /* Card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .card-body { padding: 24px; }
+
+  /* Mode tabs */
+  .mode-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 3px;
+    margin-bottom: 28px;
+  }
+
+  .mode-tab {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .mode-tab.active {
+    background: var(--surface2);
+    color: var(--accent);
+    border: 1px solid var(--border);
+  }
+
+  .mode-tab:hover:not(.active) { color: var(--text); }
+
+  /* Form groups */
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-row {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .form-row-2 { grid-template-columns: 1fr 1fr; }
+  .form-row-3 { grid-template-columns: 2fr 1fr 1fr; }
+
+  label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+
+  .required { color: var(--accent); }
+
+  input, select, textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    appearance: none;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent2);
+    box-shadow: 0 0 0 3px rgba(0,102,255,0.12);
+  }
+
+  input::placeholder { color: var(--text-muted); }
+
+  select option {
+    background: var(--surface);
+    color: var(--text);
+  }
+
+  /* Card number input with icon */
+  .card-input-wrap {
+    position: relative;
+  }
+
+  .card-input-wrap input {
+    padding-right: 48px;
+    letter-spacing: 0.05em;
+  }
+
+  .card-type-icon {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    pointer-events: none;
+  }
+
+  /* Amount input */
+  .amount-wrap {
+    position: relative;
+  }
+
+  .currency-prefix {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text-dim);
+    pointer-events: none;
+  }
+
+  .amount-wrap input {
+    padding-left: 56px;
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  /* Auth code field */
+  .auth-section {
+    display: none;
+    background: rgba(0,212,255,0.04);
+    border: 1px solid rgba(0,212,255,0.15);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+
+  .auth-section.visible { display: block; }
+
+  .auth-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+  }
+
+  /* Divider */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 24px 0;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-family: var(--mono);
+    letter-spacing: 0.08em;
+  }
+
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Submit button */
+  .btn-submit {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-submit::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .btn-submit:hover::before { opacity: 1; }
+  .btn-submit:active { transform: scale(0.99); }
+
+  .btn-submit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-submit .spinner {
+    display: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .btn-submit.loading .btn-text { display: none; }
+  .btn-submit.loading .spinner { display: block; }
+
+  /* Right panel */
+  .panel-right { display: flex; flex-direction: column; gap: 16px; }
+
+  /* Transaction summary */
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .summary-row:last-child { border-bottom: none; }
+
+  .summary-label { color: var(--text-dim); font-family: var(--mono); font-size: 11px; }
+  .summary-value { font-family: var(--mono); font-weight: 500; }
+
+  .summary-amount {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--accent);
+    font-family: var(--mono);
+    text-align: center;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+
+  /* Response panel */
+  .response-panel {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .response-panel.visible { display: block; }
+
+  .response-header {
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .response-header.success { background: rgba(0,232,122,0.08); color: var(--success); border-bottom: 1px solid rgba(0,232,122,0.15); }
+  .response-header.error { background: rgba(255,59,92,0.08); color: var(--error); border-bottom: 1px solid rgba(255,59,92,0.15); }
+  .response-header.pending { background: rgba(255,184,0,0.08); color: var(--warning); border-bottom: 1px solid rgba(255,184,0,0.15); }
+
+  .response-body {
+    padding: 16px 20px;
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.8;
+    color: var(--text-dim);
+  }
+
+  .response-field { display: flex; justify-content: space-between; margin-bottom: 6px; }
+  .response-key { color: var(--text-muted); }
+  .response-val { color: var(--text); font-weight: 500; }
+
+  /* Recent transactions */
+  .tx-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+
+  .tx-item:last-child { border-bottom: none; }
+
+  .tx-info { display: flex; flex-direction: column; gap: 2px; }
+  .tx-id { font-family: var(--mono); font-size: 10px; color: var(--text-dim); }
+  .tx-card { font-family: var(--mono); font-size: 11px; color: var(--text); }
+
+  .tx-right { text-align: right; }
+  .tx-amount { font-family: var(--mono); font-weight: 600; font-size: 13px; }
+  .tx-status {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-top: 3px;
+    display: inline-block;
+  }
+
+  .tx-status.paid { background: rgba(0,232,122,0.1); color: var(--success); }
+  .tx-status.declined { background: rgba(255,59,92,0.1); color: var(--error); }
+  .tx-status.pending { background: rgba(255,184,0,0.1); color: var(--warning); }
+
+  /* Mode indicator */
+  .mode-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    letter-spacing: 0.08em;
+  }
+
+  .mode-indicator.normal { background: rgba(0,102,255,0.1); color: var(--accent2); border: 1px solid rgba(0,102,255,0.2); }
+  .mode-indicator.capture { background: rgba(0,212,255,0.1); color: var(--accent); border: 1px solid rgba(0,212,255,0.2); }
+
+  /* Security badges */
+  .security-badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+
+  .badge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+  }
+
+  .badge svg { width: 12px; height: 12px; }
+
+  @media (max-width: 768px) {
+    .main { grid-template-columns: 1fr; }
+    .form-row-3 { grid-template-columns: 1fr 1fr; }
+    .form-row-3 > *:first-child { grid-column: span 2; }
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">
+    <div class="logo-mark">HX</div>
+    <div>
+      <div class="logo-text">HOMEXI</div>
+      <div class="logo-sub">Virtual Terminal</div>
+    </div>
+  </div>
+  <div class="status-bar">
+    <div class="status-dot" style="background:var(--warning);box-shadow:0 0 8px var(--warning)"></div>
+    <span style="color:var(--warning)">MODO PRUEBAS</span>
+    <span style="color:var(--border)">|</span>
+    <span id="currentTime"></span>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- LEFT: Form -->
+  <div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Nueva Transacción</span>
+        <span class="mode-indicator normal" id="modeIndicator">● COBRO DIRECTO</span>
+      </div>
+      <div class="card-body">
+
+        <!-- Mode tabs -->
+        <div class="mode-tabs">
+          <button class="mode-tab active" onclick="setMode('normal')">Cobro Normal</button>
+          <button class="mode-tab" onclick="setMode('capture')">Capture Only</button>
+        </div>
+
+        <!-- Auth section (Capture Only) -->
+        <div class="auth-section" id="authSection">
+          <div class="auth-badge">⚡ PREAUTORIZACIÓN</div>
+          <div class="form-group" style="margin:0">
+            <label>Código de Autorización <span class="required">*</span></label>
+            <input type="text" id="authCode" placeholder="Ej: 123456" maxlength="8" style="letter-spacing:0.2em; font-size:18px; font-weight:600; text-align:center;">
+          </div>
+        </div>
+
+        <!-- Amount -->
+        <div class="form-group">
+          <label>Monto <span class="required">*</span></label>
+          <div class="amount-wrap">
+            <span class="currency-prefix">MXN $</span>
+            <input type="number" id="amount" placeholder="0.00" step="0.01" min="1" oninput="updateSummary()">
+          </div>
+        </div>
+
+        <div class="divider">datos de tarjeta</div>
+
+        <!-- Card number -->
+        <div class="form-group">
+          <label>Número de Tarjeta <span class="required">*</span></label>
+          <div class="card-input-wrap">
+            <input type="text" id="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19" oninput="formatCard(this); updateSummary();">
+            <span class="card-type-icon" id="cardIcon">💳</span>
+          </div>
+        </div>
+
+        <!-- Expiry + CVV -->
+        <div class="form-row form-row-2">
+          <div>
+            <label>Fecha de Vencimiento <span class="required">*</span></label>
+            <input type="text" id="expiry" placeholder="MM/AA" maxlength="5" oninput="formatExpiry(this)">
+          </div>
+          <div>
+            <label>CVV <span class="required">*</span></label>
+            <input type="text" id="cvv" placeholder="•••" maxlength="4" style="letter-spacing:0.2em;">
+          </div>
+        </div>
+
+        <div class="divider">datos del cliente</div>
+
+        <!-- Customer info -->
+        <div class="form-group">
+          <label>Nombre del Titular</label>
+          <input type="text" id="customerName" placeholder="Nombre completo" oninput="updateSummary()">
+        </div>
+
+        <div class="form-row form-row-2">
+          <div>
+            <label>Email</label>
+            <input type="email" id="customerEmail" placeholder="correo@ejemplo.com">
+          </div>
+          <div>
+            <label>Teléfono</label>
+            <input type="text" id="customerPhone" placeholder="+52 000 000 0000">
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label>Descripción / Referencia</label>
+          <input type="text" id="description" placeholder="Descripción del servicio o referencia interna">
+        </div>
+
+        <!-- Submit -->
+        <button class="btn-submit" id="submitBtn" onclick="processPayment()">
+          <span class="btn-text">⚡ Procesar Pago</span>
+          <div class="spinner"></div>
+        </button>
+
+        <div class="security-badges">
+          <span class="badge">🔒 SSL Cifrado</span>
+          <span class="badge">🛡️ PCI DSS</span>
+          <span class="badge">✓ Conekta Secure</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Summary + Response -->
+  <div class="panel-right">
+
+    <!-- Summary -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Resumen</span>
+      </div>
+      <div class="card-body" style="padding:16px 20px;">
+        <div class="summary-amount" id="summaryAmount">$0.00</div>
+        <div class="summary-row">
+          <span class="summary-label">TITULAR</span>
+          <span class="summary-value" id="summaryName">—</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">TARJETA</span>
+          <span class="summary-value" id="summaryCard">—</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">MODO</span>
+          <span class="summary-value" id="summaryMode" style="color:var(--accent2)">COBRO DIRECTO</span>
+        </div>
+        <div class="summary-row" id="summaryAuthRow" style="display:none">
+          <span class="summary-label">AUTH CODE</span>
+          <span class="summary-value" id="summaryAuth" style="color:var(--accent)">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Response -->
+    <div class="response-panel" id="responsePanel">
+      <div class="response-header" id="responseHeader">
+        <span id="responseIcon">●</span>
+        <span id="responseTitle">Procesando...</span>
+      </div>
+      <div class="response-body" id="responseBody"></div>
+    </div>
+
+    <!-- Recent transactions -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Últimas Transacciones</span>
+      </div>
+      <div class="card-body" style="padding: 0 20px;">
+        <div id="txList">
+          <div style="padding:20px 0; text-align:center; color:var(--text-muted); font-family:var(--mono); font-size:11px;">
+            SIN TRANSACCIONES AÚN
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  // ─── Config ───
+  const API_KEY = 'key_N27574NfEE4cBdJAzdk0tjF';
+  const API_URL = 'https://api.conekta.io/orders';
+
+  let currentMode = 'normal';
+  let transactions = [];
+
+  // ─── Clock ───
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('currentTime').textContent = 
+      now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // ─── Mode ───
+  function setMode(mode) {
+    currentMode = mode;
+    const tabs = document.querySelectorAll('.mode-tab');
+    tabs[0].classList.toggle('active', mode === 'normal');
+    tabs[1].classList.toggle('active', mode === 'capture');
+
+    const authSection = document.getElementById('authSection');
+    authSection.classList.toggle('visible', mode === 'capture');
+
+    const indicator = document.getElementById('modeIndicator');
+    const summaryMode = document.getElementById('summaryMode');
+    const authRow = document.getElementById('summaryAuthRow');
+
+    if (mode === 'capture') {
+      indicator.className = 'mode-indicator capture';
+      indicator.textContent = '⚡ CAPTURE ONLY';
+      summaryMode.textContent = 'CAPTURE ONLY';
+      summaryMode.style.color = 'var(--accent)';
+      authRow.style.display = 'flex';
+    } else {
+      indicator.className = 'mode-indicator normal';
+      indicator.textContent = '● COBRO DIRECTO';
+      summaryMode.textContent = 'COBRO DIRECTO';
+      summaryMode.style.color = 'var(--accent2)';
+      authRow.style.display = 'none';
+    }
+  }
+
+  // ─── Format card number ───
+  function formatCard(input) {
+    let val = input.value.replace(/\D/g, '').substring(0, 16);
+    input.value = val.replace(/(.{4})/g, '$1 ').trim();
+
+    const icon = document.getElementById('cardIcon');
+    if (val.startsWith('4')) icon.textContent = '💳'; // Visa
+    else if (val.startsWith('5')) icon.textContent = '💳'; // MC
+    else if (val.startsWith('3')) icon.textContent = '💳'; // Amex
+    else icon.textContent = '💳';
+  }
+
+  // ─── Format expiry ───
+  function formatExpiry(input) {
+    let val = input.value.replace(/\D/g, '');
+    if (val.length >= 2) val = val.substring(0,2) + '/' + val.substring(2,4);
+    input.value = val;
+  }
+
+  // ─── Update summary ───
+  function updateSummary() {
+    const amount = document.getElementById('amount').value;
+    const name = document.getElementById('customerName').value;
+    const card = document.getElementById('cardNumber').value;
+
+    document.getElementById('summaryAmount').textContent = 
+      amount ? '$' + parseFloat(amount).toLocaleString('es-MX', {minimumFractionDigits:2}) : '$0.00';
+    document.getElementById('summaryName').textContent = name || '—';
+    
+    const clean = card.replace(/\s/g,'');
+    document.getElementById('summaryCard').textContent = 
+      clean.length >= 4 ? '•••• ' + clean.slice(-4) : '—';
+
+    const authCode = document.getElementById('authCode').value;
+    document.getElementById('summaryAuth').textContent = authCode || '—';
+  }
+
+  // ─── Process payment ───
+  async function processPayment() {
+    const amount = document.getElementById('amount').value;
+    const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g,'');
+    const expiry = document.getElementById('expiry').value;
+    const cvv = document.getElementById('cvv').value;
+    const customerName = document.getElementById('customerName').value || 'Cliente';
+    const customerEmail = document.getElementById('customerEmail').value || 'cliente@homexi.com';
+    const description = document.getElementById('description').value || 'Pago Homexi';
+    const authCode = document.getElementById('authCode').value;
+
+    // Validations
+    if (!amount || parseFloat(amount) < 1) return showError('Ingresa un monto válido.');
+    if (cardNumber.length < 15) return showError('Número de tarjeta inválido.');
+    if (!expiry || expiry.length < 5) return showError('Fecha de vencimiento inválida.');
+    if (!cvv || cvv.length < 3) return showError('CVV inválido.');
+    if (currentMode === 'capture' && (!authCode || authCode.length < 4)) {
+      return showError('Ingresa el código de autorización.');
+    }
+
+    const [expMonth, expYear] = expiry.split('/');
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.classList.add('loading');
+    showPending();
+
+    try {
+      // Build payload
+      const payload = {
+        currency: 'MXN',
+        customer_info: {
+          name: customerName,
+          email: customerEmail,
+          phone: document.getElementById('customerPhone').value || '5500000000'
+        },
+        line_items: [{
+          name: description,
+          unit_price: Math.round(parseFloat(amount) * 100),
+          quantity: 1
+        }],
+        charges: [{
+          payment_method: {
+            type: 'card',
+            token_id: null,
+            card_number: cardNumber,
+            exp_month: expMonth,
+            exp_year: '20' + expYear,
+            cvv2: cvv,
+            name: customerName
+          },
+          amount: Math.round(parseFloat(amount) * 100)
+        }]
+      };
+
+      // If capture only, add authorization code
+      if (currentMode === 'capture') {
+        payload.charges[0].payment_method.capture = false;
+        payload.charges[0].authorization = authCode;
+      }
+
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/vnd.conekta-v2.1.0+json',
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + API_KEY
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+
+      if (response.ok && (data.payment_status === 'paid' || data.charges?.data?.[0]?.status === 'paid')) {
+        const charge = data.charges?.data?.[0];
+        showSuccess({
+          id: data.id,
+          amount: parseFloat(amount),
+          status: charge?.status || 'paid',
+          authCode: charge?.payment_method?.auth_code || authCode || '—',
+          last4: cardNumber.slice(-4),
+          name: customerName
+        });
+        addTransaction({
+          id: (data.id || '').substring(0,12) + '...',
+          last4: cardNumber.slice(-4),
+          amount: parseFloat(amount),
+          status: 'paid'
+        });
+        resetForm();
+      } else {
+        const errMsg = data.details?.[0]?.message || data.message || 'Transacción rechazada';
+        showError(errMsg);
+        addTransaction({
+          id: 'DECLINED',
+          last4: cardNumber.slice(-4),
+          amount: parseFloat(amount),
+          status: 'declined'
+        });
+      }
+    } catch (err) {
+      showError('Error de conexión: ' + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.classList.remove('loading');
+    }
+  }
+
+  // ─── Response states ───
+  function showPending() {
+    const panel = document.getElementById('responsePanel');
+    panel.classList.add('visible');
+    document.getElementById('responseHeader').className = 'response-header pending';
+    document.getElementById('responseIcon').textContent = '◌';
+    document.getElementById('responseTitle').textContent = 'PROCESANDO...';
+    document.getElementById('responseBody').innerHTML = '<div style="color:var(--warning)">Enviando al banco adquirente...</div>';
+  }
+
+  function showSuccess(data) {
+    const panel = document.getElementById('responsePanel');
+    panel.classList.add('visible');
+    document.getElementById('responseHeader').className = 'response-header success';
+    document.getElementById('responseIcon').textContent = '✓';
+    document.getElementById('responseTitle').textContent = 'APROBADO';
+    document.getElementById('responseBody').innerHTML = `
+      <div class="response-field"><span class="response-key">ORDER ID</span><span class="response-val">${data.id?.substring(0,20) || '—'}...</span></div>
+      <div class="response-field"><span class="response-key">MONTO</span><span class="response-val" style="color:var(--success)">$${data.amount.toLocaleString('es-MX',{minimumFractionDigits:2})} MXN</span></div>
+      <div class="response-field"><span class="response-key">TARJETA</span><span class="response-val">•••• ${data.last4}</span></div>
+      <div class="response-field"><span class="response-key">AUTH CODE</span><span class="response-val" style="color:var(--accent)">${data.authCode}</span></div>
+      <div class="response-field"><span class="response-key">TITULAR</span><span class="response-val">${data.name}</span></div>
+      <div class="response-field"><span class="response-key">ESTADO</span><span class="response-val" style="color:var(--success)">PAGADO ✓</span></div>
+    `;
+  }
+
+  function showError(msg) {
+    const panel = document.getElementById('responsePanel');
+    panel.classList.add('visible');
+    document.getElementById('responseHeader').className = 'response-header error';
+    document.getElementById('responseIcon').textContent = '✕';
+    document.getElementById('responseTitle').textContent = 'RECHAZADO';
+    document.getElementById('responseBody').innerHTML = `<div style="color:var(--error)">${msg}</div>`;
+  }
+
+  // ─── Add transaction to history ───
+  function addTransaction(tx) {
+    transactions.unshift(tx);
+    if (transactions.length > 5) transactions.pop();
+    renderTransactions();
+  }
+
+  function renderTransactions() {
+    const list = document.getElementById('txList');
+    if (transactions.length === 0) {
+      list.innerHTML = '<div style="padding:20px 0; text-align:center; color:var(--text-muted); font-family:var(--mono); font-size:11px;">SIN TRANSACCIONES AÚN</div>';
+      return;
+    }
+    list.innerHTML = transactions.map(tx => `
+      <div class="tx-item">
+        <div class="tx-info">
+          <span class="tx-id">${tx.id}</span>
+          <span class="tx-card">•••• ${tx.last4}</span>
+        </div>
+        <div class="tx-right">
+          <div class="tx-amount">$${tx.amount.toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
+          <span class="tx-status ${tx.status}">${tx.status === 'paid' ? 'PAGADO' : 'DECLINADO'}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ─── Reset form ───
+  function resetForm() {
+    ['amount','cardNumber','expiry','cvv','customerName','customerEmail','customerPhone','description','authCode'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('cardIcon').textContent = '💳';
+    updateSummary();
+  }
+
+  // Auth code live update
+  document.getElementById('authCode').addEventListener('input', updateSummary);
+</script>
+</body>
+</html>
